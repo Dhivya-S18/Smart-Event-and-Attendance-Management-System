@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Clubs | NEC Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: rgba(124, 58, 237, 0.4);
+            --secondary-glow: rgba(59, 130, 246, 0.4);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: 
+                radial-gradient(circle at 10% 20%, var(--primary-glow) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--secondary-glow) 0%, transparent 40%);
+            filter: blur(80px); opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* --- View States --- */
+        .view { display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+        .view.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* --- Header --- */
+        .page-header { text-align: center; margin-bottom: 4rem; }
+        .page-header h1 { 
+            font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-header p { color: #94a3b8; font-size: 1.25rem; }
+
+        /* --- Club Explorer --- */
+        .explorer-controls {
+            background: rgba(30,41,59,0.5); backdrop-filter: blur(12px);
+            padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex; gap: 1rem; margin-bottom: 3rem;
+        }
+        .explorer-controls input {
+            flex: 1; background: rgba(15,23,42,0.5); border: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 1rem 1.5rem; border-radius: 12px; color: white; outline: none; transition: 0.3s;
+        }
+        .explorer-controls input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+
+        .club-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;
+        }
+
+        .club-card {
+            background: rgba(30,41,59,0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 24px;
+            padding: 2rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; cursor: pointer; position: relative; overflow: hidden;
+        }
+        .club-card:hover { transform: translateY(-8px); border-color: var(--primary-glow); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5); }
+        .club-card h3 { margin: 0 0 1rem; font-size: 1.5rem; font-weight: 600; }
+        .club-card .type { font-size: 0.8rem; color: #8b5cf6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 700; }
+        .club-card p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex: 1; }
+
+        .card-footer {
+            display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;
+        }
+        .fee-pill { 
+            background: rgba(251, 191, 36, 0.1); color: #fbbf24; 
+            padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 600; font-size: 0.85rem;
+        }
+
+        /* --- Details View --- */
+        .details-container {
+            max-width: 800px; margin: 0 auto;
+            background: rgba(30,41,59,0.7); backdrop-filter: blur(12px);
+            padding: 4rem; border-radius: 32px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .details-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem; }
+        .back-btn { 
+            background: rgba(255,255,255,0.05); outline: none; border: none; color: #94a3b8;
+            padding: 0.75rem 1.25rem; border-radius: 12px; cursor: pointer; transition: 0.3s;
+            margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .details-body h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .details-body .full-desc { font-size: 1.15rem; color: #cbd5e1; line-height: 1.8; margin-bottom: 2.5rem; }
+
+        /* --- Form View --- */
+        .form-card { max-width: 600px; margin: 0 auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .full-width { grid-column: 1 / -1; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 0.5rem; color: #cbd5e1; font-weight: 500; }
+        input, select { 
+            width: 100%; background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem; border-radius: 14px; color: white; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+
+        .btn-action {
+            width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white; border: none; padding: 1.25rem; border-radius: 16px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 20px -10px rgba(124, 58, 237, 0.5);
+        }
+        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        @media (max-width: 768px) {
+            .details-container { padding: 2rem; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    
+    <div class="container">
+        <header class="page-header" id="main-header">
+            <h1 id="page-title">Explore Clubs</h1>
+            <p id="page-subtitle">Discover the vibrant community at NEC. Find your tribe today.</p>
+        </header>
+
+        <!-- View 1: Club Explorer -->
+        <section id="explorer-view" class="view active">
+            <div class="explorer-controls">
+                <input type="text" id="club-search" placeholder="Search by name, type, or department..." oninput="explorer.filterClubs()">
+            </div>
+            <div id="club-grid" class="club-grid">
+                <!-- Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- View 2: Club Details -->
+        <section id="details-view" class="view">
+            <button class="back-btn" onclick="explorer.showView('explorer')">← Back to Clubs</button>
+            <div class="details-container">
+                <div class="details-body">
+                    <span id="det-type" class="type" style="color: #8b5cf6; font-weight: 700; letter-spacing: 1px;"></span>
+                    <h2 id="det-name"></h2>
+                    <p id="det-desc" class="full-desc"></p>
+                    
+                    <div style="background: rgba(139, 92, 246, 0.05); padding: 2rem; border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.1); margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="display: block; font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.25rem;">Membership Type</span>
+                            <span id="det-membership" style="font-weight: 600; font-size: 1.1rem;"></span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="display: block; font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.25rem;">Cost</span>
+                            <span id="det-fee" style="font-weight: 700; font-size: 1.5rem; color: #fbbf24;"></span>
+                        </div>
+                    </div>
+
+                    <button class="btn-action" onclick="explorer.showView('registration')">Join This Club Now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: Registration Form -->
+        <section id="registration-view" class="view">
+            <button class="back-btn" onclick="explorer.showView('details')">← Back to Details</button>
+            <div class="details-container form-card">
+                <div class="header" style="text-align: left; margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Join <span id="reg-club-name" style="color: #8b5cf6;"></span></h2>
+                    <p style="color: #94a3b8;">Finalize your application by providing your details.</p>
+                </div>
+
+                <form id="join-form">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Full Name</label>
+                            <input type="text" id="name" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" placeholder="student@nec.edu.in" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Register Number</label>
+                            <input type="text" id="registerNumber" placeholder="2112001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="department" required>
+                                <option value="">Loading Departments...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Current Year</label>
+                            <select id="year" required>
+                                <option value="">Select Year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn-action" style="margin-top: 1rem;">Submit Membership Application</button>
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <a href="login.html" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem;">Already have an account? <span style="color: #8b5cf6;">Login</span></a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/join-club.js"></script>
+</body>
+</html>

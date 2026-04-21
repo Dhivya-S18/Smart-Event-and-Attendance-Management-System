@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Club Event Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-container">
+    <aside class="sidebar">
+        <h2>Admin Hub</h2>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" onclick="showSection('analytics')">Analytics</a></li>
+                <li><a href="#" onclick="showSection('publish')">Publish Events</a></li>
+                <li><a href="#" onclick="showSection('events')">Manage Events</a></li>
+                <li><a href="#" onclick="showSection('users')">Manage Users</a></li>
+                <li><a href="#" onclick="showSection('associations')">Associations</a></li>
+                <li><a href="#" onclick="showSection('profile')">Profile</a></li>
+                <li><a href="#" onclick="auth.logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1 id="welcome-msg">Admin Dashboard</h1>
+        </header>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section">
+            <h2 style="margin-bottom: 1.5rem;">System Overview</h2>
+            <div class="stats-grid">
+                <div class="card stat-card clickable" onclick="showSection('users')">
+                    <p>Total Users</p>
+                    <h3 id="stat-users">0</h3>
+                </div>
+                <div class="card stat-card clickable" onclick="showSection('clubs')">
+                    <p>Total Clubs</p>
+                    <h3 id="stat-clubs">0</h3>
+                </div>
+                <div class="card stat-card clickable" onclick="showSection('publish')">
+                    <p>Total Events</p>
+                    <h3 id="stat-events">0</h3>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem;">
+                <canvas id="analyticsChart" height="100"></canvas>
+            </div>
+        </section>
+
+        <!-- Publish Section -->
+        <section id="publish-section" style="display: none;">
+            <h2 style="margin-bottom: 1.5rem;">Ready to Publish</h2>
+            <div class="table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Club</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>User Management</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="search-users" placeholder="Search by name/email..." oninput="admin.filterUsers()" class="search-input">
+                    <select id="filter-user-dept" onchange="admin.filterUsers()" class="search-input">
+                        <option value="">All Departments</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="admin.openAddUserModal()">+ Add User</button>
+                </div>
+            </div>
+            
+            <div class="stats-grid" style="margin-bottom: 2.5rem;">
+                <div class="card stat-card clickable" onclick="admin.showRole('hod')">
+                    <p>Total HODs</p>
+                    <h3 id="hod-count">0</h3>
+                </div>
+                <div class="card stat-card clickable" onclick="admin.showRole('staff')">
+                    <p>Total Staff</p>
+                    <h3 id="staff-count">0</h3>
+                </div>
+                <div class="card stat-card clickable" onclick="admin.showRole('student')">
+                    <p>Total Students</p>
+                    <h3 id="student-count">0</h3>
+                </div>
+            </div>
+
+            <div id="hod-category" class="role-list" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">HOD Directory</h3>
+                <div class="table-container card">
+                    <table>
+                        <thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
+                        <tbody id="hod-users-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="staff-category" class="role-list" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">Staff Directory</h3>
+                <div class="table-container card">
+                    <table>
+                        <thead><tr><th>Name</th><th>Dept</th><th>Actions</th></tr></thead>
+                        <tbody id="staff-users-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="student-category" class="role-list" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">Student Directory</h3>
+                <div class="table-container card">
+                    <table>
+                        <thead><tr><th>Name</th><th>Reg No</th><th>Dept</th><th>Actions</th></tr></thead>
+                        <tbody id="student-users-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Associations Section -->
+        <section id="associations-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Department Associations</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="search-associations" placeholder="Search associations..." oninput="admin.filterAssociations()" class="search-input">
+                    <button class="btn btn-primary" onclick="admin.openAddAssociationModal()">+ New Association</button>
+                </div>
+            </div>
+            
+            <div id="admin-associations-grid" class="stats-grid">
+                <!-- Association cards loaded via JS -->
+            </div>
+        </section>
+
+        <!-- Clubs Section -->
+        <section id="clubs-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>College Clubs</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="category-tabs">
+                        <button class="tab-btn active" onclick="admin.filterClubsByType('all', event)">All</button>
+                        <button class="tab-btn" onclick="admin.filterClubsByType('department', event)">Department</button>
+                        <button class="tab-btn" onclick="admin.filterClubsByType('shared', event)">Shared</button>
+                        <button class="tab-btn" onclick="admin.filterClubsByType('independent', event)">Independent</button>
+                    </div>
+                    <input type="text" id="search-clubs" placeholder="Search clubs..." oninput="admin.filterClubs()" class="search-input">
+                    <div class="create-dropdown">
+                        <button class="btn btn-primary" onclick="admin.toggleCreateDropdown(event)">+ Create Club ▾</button>
+                        <div id="create-club-dropdown" class="dropdown-content">
+                            <a href="#" onclick="admin.openAddDeptClubModal()">Department Club</a>
+                            <a href="#" onclick="admin.openAddSharedClubModal()">Shared Club</a>
+                            <a href="#" onclick="admin.openAddIndependentClubModal()">Independent Club</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="admin-clubs-grid" class="stats-grid"></div>
+        </section>
+
+        <!-- Manage Events Section -->
+        <section id="events-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2>Manage All Events</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="category-tabs" id="event-tabs">
+                        <button class="tab-btn active" onclick="admin.switchEventTab('upcoming', event)">Upcoming</button>
+                        <button class="tab-btn" onclick="admin.switchEventTab('completed', event)">Completed</button>
+                    </div>
+                    <input type="text" id="search-events" placeholder="Search by title..." oninput="admin.filterEvents()" class="search-input">
+                    <select id="filter-event-status" onchange="admin.filterEvents()" class="search-input">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="staff_approved">Staff Approved</option>
+                        <option value="approved">Approved (HOD)</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Club</th>
+                            <th>Date or Venue</th>
+                            <th>Status</th>
+                            <th>Documents</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage-events-table">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" style="display: none;">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-display" src="../assets/default-avatar.png" alt="Profile Picture">
+                        <label for="profile-pic-input" class="pic-edit-btn" title="Update Photo">
+                            <i>📷</i>
+                            <input type="file" id="profile-pic-input" hidden accept="image/*">
+                        </label>
+                        <button class="pic-delete-btn" onclick="admin.deleteProfilePic()" title="Remove Photo">
+                            <i>✕</i>
+                        </button>
+                    </div>
+                    <div class="profile-info-basic">
+                        <h2 id="display-name">User Name</h2>
+                        <p id="display-role">Administrator</p>
+                        <button class="btn btn-primary" id="edit-profile-btn" onclick="admin.toggleProfileEdit(true)">Edit Profile</button>
+                    </div>
+                </div>
+
+                <div id="profile-view-mode">
+                    <div class="profile-details-grid">
+                        <div class="detail-item">
+                            <label>Email</label>
+                            <p id="view-email">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phone</label>
+                            <p id="view-phone">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <p id="view-dept">-</p>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <label>Bio</label>
+                            <p id="view-bio" style="font-style: italic; color: var(--text-muted); line-height: 1.5;">No bio added yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profile-edit-mode" style="display: none;">
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="profile-dept-input" placeholder="e.g. Administration">
+                        </div>
+                        <div class="form-group">
+                            <label>Bio</label>
+                            <textarea id="profile-bio-input" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" onclick="admin.toggleProfileEdit(false)">Cancel</button>
+                        </div>
+                        <p id="profile-msg" class="feedback-msg"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- User Profile Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content card">
+            <h2 id="modal-title" style="margin-bottom: 1.5rem; color: var(--primary);">User Profile</h2>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group" id="role-group" style="display: none;">
+                    <label>Role</label>
+                    <select id="edit-role" required>
+                        <option value="student">Student</option>
+                        <option value="staff">Staff</option>
+                        <option value="hod">HOD</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="edit-email" required autocomplete="username">
+                </div>
+                <div class="form-group" id="password-group" style="display: none;">
+                    <label>Password</label>
+                    <input type="password" id="edit-password" placeholder="Leave blank if not changing/creating" autocomplete="new-password">
+                </div>
+                <div id="student-extra-fields">
+                    <div class="form-group">
+                        <label id="reg-id-label">Register Number</label>
+                        <input type="text" id="edit-reg">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" id="edit-dept">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" id="save-user-btn">Update</button>
+                    <button type="button" class="btn btn-primary" id="delete-user-btn" onclick="admin.deleteUser()">Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('user-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Association Modal -->
+    <div id="association-modal" class="modal">
+        <div class="modal-content card" style="max-width: 500px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">New Association</h2>
+            <form id="association-form">
+                <div class="form-group">
+                    <label>Association Name</label>
+                    <input type="text" id="assoc-name" placeholder="e.g. CSE Association" required>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="assoc-dept-select" required onchange="admin.loadTeamForDept(this.value, 'assoc-hod-select', 'assoc-staff-container', 'assoc-staff-email')">
+                        <option value="">Select Department</option>
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Head of Department (HOD)</label>
+                    <select id="assoc-hod-select" required>
+                        <option value="">Select HOD</option>
+                    </select>
+                </div>
+
+                <!-- Staff Coordinators -->
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label>Staff Coordinators</label>
+                    </div>
+                    <div id="assoc-staff-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Select a department first to load staff.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="admin.saveAssociation(event)">Create & Send Invites</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('association-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Association Detail Modal -->
+    <div id="association-detail-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                <div>
+                    <h2 id="detail-assoc-name" style="color: var(--primary); margin: 0;">Association Name</h2>
+                    <p id="detail-assoc-dept" style="color: var(--text-muted); font-size: 0.9rem;">Department</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="admin._deleteAssocFromDetail()">Delete</button>
+                    <button class="btn btn-secondary" onclick="admin.closeModal('association-detail-modal')">Close</button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="detail-team-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <!-- HOD, Staff count, Student count cards -->
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Association Team</h3>
+            <div id="detail-team-lists" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div>
+                    <h4 style="color: var(--secondary); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">Staff Coordinators</h4>
+                    <ul id="detail-staff-list" style="list-style: none; padding: 0;"></ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--success); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">Student Coordinators</h4>
+                    <ul id="detail-student-list" style="list-style: none; padding: 0;"></ul>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Linked Events</h3>
+            <div class="table-container">
+                <table style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Status</h2>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detail-events-table">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Department Club Modal -->
+    <div id="dept-club-modal" class="modal">
+        <div class="modal-content card">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">New Department Club</h2>
+            <form id="dept-club-form">
+                <div class="form-group">
+                    <label>Club Name</label>
+                    <input type="text" id="dept-club-name" placeholder="e.g. Coding Club" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="dept-club-description" rows="3" placeholder="Briefly describe the club's purpose and activities..." required style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="dept-club-dept-select" required onchange="admin.loadTeamForDept(this.value, 'dept-club-hod-select', 'dept-club-staff-container', 'dept-club-staff-email')">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Head of Department (HOD)</label>
+                    <select id="dept-club-hod-select" required>
+                        <option value="">Select HOD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label>Staff Coordinators</label>
+                    </div>
+                    <div id="dept-club-staff-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Select a department first to load staff.</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Membership Type</label>
+                    <select id="dept-club-membership-type" onchange="admin.toggleLimitField('dept-club-limit-group', this.value)" required>
+                        <option value="controlled">Controlled (Staff Managed)</option>
+                        <option value="open">Open (Student Self-Join)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="dept-club-limit-group" style="display: none;">
+                    <label>Member Limit (0 for unlimited)</label>
+                    <input type="number" id="dept-club-member-limit" min="0" value="0">
+                </div>
+                <!-- Payment Fields -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; background: rgba(255,191,36,0.05); border-radius: 8px; border: 1px solid rgba(255,191,36,0.1);">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #fbbf24;">Paid Membership?</label>
+                        <select id="dept-club-is-paid" onchange="document.getElementById('dept-club-fee-group').style.display = this.value === 'true' ? 'block' : 'none'">
+                            <option value="false">No (Free)</option>
+                            <option value="true">Yes (Paid)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="dept-club-fee-group" style="margin: 0; display: none;">
+                        <label style="color: #fbbf24;">Membership Fee (₹)</label>
+                        <input type="number" id="dept-club-fee" min="0" value="0" placeholder="e.g. 500">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="admin.saveDeptClub(event)">Create Club</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('dept-club-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Shared Club Modal -->
+    <div id="shared-club-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">New Shared Club</h2>
+            <form id="shared-club-form">
+                <div class="form-group">
+                    <label>Club Name</label>
+                    <input type="text" id="shared-club-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="shared-club-description" rows="3" placeholder="Briefly describe the club's purpose..." required style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Step 1: Select Departments</label>
+                    <div id="shared-dept-checkbox-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--bg-dark); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); max-height: 150px; overflow-y: auto;">
+                        <!-- Checkboxes populated via JS -->
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label>Step 2: Assign HODs</label>
+                    <div id="hod-assignment-container" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 1rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px;">Select departments above to assign HODs</p>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label>Step 3: Staff Coordinators</label>
+                    </div>
+                    <div id="shared-club-staff-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Select departments above to load staff.</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Membership Type</label>
+                    <select id="shared-club-membership-type" onchange="admin.toggleLimitField('shared-club-limit-group', this.value)" required>
+                        <option value="controlled">Controlled (Staff Managed)</option>
+                        <option value="open">Open (Student Self-Join)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="shared-club-limit-group" style="display: none;">
+                    <label>Member Limit (0 for unlimited)</label>
+                    <input type="number" id="shared-club-member-limit" min="0" value="0">
+                </div>
+                <!-- Payment Fields -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; background: rgba(255,191,36,0.05); border-radius: 8px; border: 1px solid rgba(255,191,36,0.1);">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #fbbf24;">Paid Membership?</label>
+                        <select id="shared-club-is-paid" onchange="document.getElementById('shared-club-fee-group').style.display = this.value === 'true' ? 'block' : 'none'">
+                            <option value="false">No (Free)</option>
+                            <option value="true">Yes (Paid)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="shared-club-fee-group" style="margin: 0; display: none;">
+                        <label style="color: #fbbf24;">Membership Fee (₹)</label>
+                        <input type="number" id="shared-club-fee" min="0" value="0" placeholder="e.g. 500">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="admin.saveSharedClub(event)">Create Shared Club</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('shared-club-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Independent Club Modal -->
+    <div id="independent-club-modal" class="modal">
+        <div class="modal-content card">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">New Independent Club</h2>
+            <form id="ind-club-form">
+                <div class="form-group">
+                    <label>Club Name</label>
+                    <input type="text" id="ind-club-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="ind-club-description" rows="3" placeholder="Briefly describe this independent club..." required style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label>Staff Coordinators</label>
+                    </div>
+                    <div id="ind-club-staff-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 200px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Membership Type</label>
+                    <select id="ind-club-membership-type" onchange="admin.toggleLimitField('ind-club-limit-group', this.value)" required>
+                        <option value="controlled">Controlled (Staff Managed)</option>
+                        <option value="open">Open (Student Self-Join)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="ind-club-limit-group" style="display: none;">
+                    <label>Member Limit (0 for unlimited)</label>
+                    <input type="number" id="ind-club-member-limit" min="0" value="0">
+                </div>
+                <!-- Payment Fields -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; background: rgba(255,191,36,0.05); border-radius: 8px; border: 1px solid rgba(255,191,36,0.1);">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #fbbf24;">Paid Membership?</label>
+                        <select id="ind-club-is-paid" onchange="document.getElementById('ind-club-fee-group').style.display = this.value === 'true' ? 'block' : 'none'">
+                            <option value="false">No (Free)</option>
+                            <option value="true">Yes (Paid)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="ind-club-fee-group" style="margin: 0; display: none;">
+                        <label style="color: #fbbf24;">Membership Fee (₹)</label>
+                        <input type="number" id="ind-club-fee" min="0" value="0" placeholder="e.g. 500">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="admin.saveIndependentClub(event)">Create Club</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('independent-club-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Club Detail Modal (Neat view matching Associations) -->
+    <div id="club-detail-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                <div>
+                    <h2 id="detail-club-name" style="color: var(--primary); margin: 0;">Club Name</h2>
+                    <p id="detail-club-type-label" style="color: var(--text-muted); font-size: 0.9rem;">Type</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="admin.openClubEditModal()">Edit</button>
+                    <button class="btn btn-secondary" onclick="admin.closeModal('club-detail-modal')">Close</button>
+                </div>
+            </div>
+
+            <p id="detail-club-desc" style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;"></p>
+
+            <div class="stats-grid" id="club-detail-team-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <!-- HOD, Staff count, Student count cards -->
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Club Team</h3>
+            <div id="club-detail-team-lists" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div>
+                    <h4 style="color: var(--secondary); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">Staff Coordinators</h4>
+                    <ul id="club-detail-staff-list" style="list-style: none; padding: 0;"></ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--success); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">Student Coordinator</h4>
+                    <ul id="club-detail-student-list" style="list-style: none; padding: 0;"></ul>
+                </div>
+            </div>
+
+            <div id="club-detail-hods-section" style="margin-bottom: 2rem; display: none;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.3rem;">Assigned HODs</h4>
+                <ul id="club-detail-hod-list" style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"></ul>
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Published Events</h3>
+            <div class="table-container">
+                <table style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="club-detail-events-table">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Club Modal (Formerly club-modal) -->
+    <div id="club-edit-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                <div style="flex: 1;">
+                    <input type="text" id="club-modal-name-input" style="font-size: 1.5rem; font-weight: bold; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--primary); width: 100%; margin-bottom: 0.5rem;" placeholder="Club Name">
+
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">Club Type</label>
+                            <select id="club-modal-type-select" onchange="admin.handleClubTypeChange()" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                                <option value="department">Departmental Club</option>
+                                <option value="shared">Shared Club</option>
+                                <option value="independent">Independent Club</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">Event Visibility</label>
+                            <select id="club-modal-visibility-select" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                                <option value="public">Public</option>
+                                <option value="members_only">Members Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">Membership Type</label>
+                            <select id="edit-club-membership-type" onchange="admin.toggleLimitField('edit-club-limit-group', this.value)" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                                <option value="controlled">Controlled</option>
+                                <option value="open">Open</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;" id="edit-club-limit-group" style="display: none;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">Member Limit</label>
+                            <input type="number" id="edit-club-member-limit" min="0" value="0" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <!-- Payment Fields for Edit Modal -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; background: rgba(255,191,36,0.05); border-radius: 8px; border: 1px solid rgba(255,191,36,0.1); margin-bottom: 1rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label style="color: #fbbf24; font-size: 0.85rem;">Paid Membership?</label>
+                            <select id="edit-club-is-paid" onchange="document.getElementById('edit-club-fee-group').style.display = this.value === 'true' ? 'block' : 'none'" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                                <option value="false">No (Free)</option>
+                                <option value="true">Yes (Paid)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="edit-club-fee-group" style="margin: 0; display: none;">
+                            <label style="color: #fbbf24; font-size: 0.85rem;">Membership Fee (₹)</label>
+                            <input type="number" id="edit-club-fee" min="0" value="0" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <div id="dept-hod-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <!-- Dynamic Dept/HOD Selectors populated via JS -->
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted);">Student Coordinator (Email)</label>
+                        <input type="email" id="club-modal-student-input" style="width: 100%; background: var(--bg-dark); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 4px;" placeholder="student@nec.edu.in">
+                    </div>
+
+                    <textarea id="club-modal-desc-input" style="font-size: 0.9rem; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; width: 100%; margin-top: 0.5rem; resize: vertical;" placeholder="Club Description"></textarea>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label>Staff Coordinators</label>
+                            <button type="button" class="btn btn-primary" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;" onclick="admin.addClubStaffRow('club-modal')">+ Add Staff</button>
+                        </div>
+                        <div id="club-modal-staff-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items:start; margin-left: 1rem;">
+                    <button class="btn btn-primary" onclick="admin.saveClub()">Save Changes</button>
+                    <button class="btn btn-primary" id="delete-club-btn" onclick="admin.deleteClub()">Delete</button>
+                    <button class="btn btn-secondary" onclick="admin.closeModal('club-edit-modal')">Close</button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="club-members-section" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 2rem;">
+                <!-- Staff/Student Email inputs -->
+            </div>
+                <div class="card" style="padding: 1rem; text-align: center;" id="club-report-div">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Reports</p>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
+                        <input type="month" id="report-month" style="padding: 0.2rem; background: var(--bg-dark); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 4px; font-size: 0.8rem;">
+                        <button class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="admin.downloadClubReport()">PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="club-events-section">
+                <div class="tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                    <button class="tab-btn active" onclick="admin.switchClubTab('published')">Published</button>
+                    <button class="tab-btn" onclick="admin.switchClubTab('approved')">Approved</button>
+                    <button class="tab-btn" onclick="admin.switchClubTab('pending')">Pending</button>
+                    <button class="tab-btn" onclick="admin.switchClubTab('members')">Members</button>
+                    <button class="tab-btn" onclick="admin.switchClubTab('requests')">Join Requests</button>
+                </div>
+
+                <div id="club-events-tab-content">
+                    <div class="table-container">
+                        <table style="font-size: 0.9rem;">
+                            <thead>
+                                <tr><th>Event</th><th>Date</th><th>Venue</th><th>Attendance</th><th>Action</th></tr>
+                            </thead>
+                            <tbody id="club-events-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="club-members-tab-content" style="display: none;">
+                    <div class="table-container">
+                        <table style="font-size: 0.9rem;">
+                            <thead>
+                                <tr><th>Name</th><th>Reg No</th><th>Dept</th><th>Year</th><th>Action</th></tr>
+                            </thead>
+                            <tbody id="club-members-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="club-requests-tab-content" style="display: none;">
+                    <div class="table-container">
+                        <table style="font-size: 0.9rem;">
+                            <thead>
+                                <tr><th>Student Name</th><th>Reg No</th><th>Transaction ID</th><th>Status</th><th>Applied At</th></tr>
+                            </thead>
+                            <tbody id="club-requests-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px;">
+            <h2 id="event-modal-title" style="margin-bottom: 1.5rem; color: var(--primary);">Edit Event</h2>
+            <form id="edit-event-form">
+                <input type="hidden" id="edit-event-id">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="edit-event-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit-event-desc" required style="resize:vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Date</label>
+                        <input type="datetime-local" id="edit-event-date" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Venue</label>
+                        <input type="text" id="edit-event-venue" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="edit-event-status">
+                        <option value="pending">Pending</option>
+                        <option value="staff_approved">Staff Approved</option>
+                        <option value="approved">Approved (HOD)</option>
+                        <option value="published">Published</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <h4 style="margin: 1.5rem 0 1rem; color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Event Committee</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>President</label>
+                        <input type="text" id="edit-event-president" placeholder="Student Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Vice President</label>
+                        <input type="text" id="edit-event-vp" placeholder="Student Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Security Head</label>
+                        <input type="text" id="edit-event-security" placeholder="Student Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Other Coordinator</label>
+                        <input type="text" id="edit-event-other-coord" placeholder="Student Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Staff Coordinator 1</label>
+                        <input type="text" id="edit-event-staff-1" placeholder="Staff Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Staff Coordinator 2</label>
+                        <input type="text" id="edit-event-staff-2" placeholder="Staff Name">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Update Event</button>
+                    <button type="button" class="btn btn-primary" onclick="admin.deleteEvent()">Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('event-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

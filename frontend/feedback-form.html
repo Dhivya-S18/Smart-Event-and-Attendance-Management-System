@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Feedback - Club Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        .feedback-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .question-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .question-label {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--text-main);
+        }
+        .required-star { color: #ef4444; margin-left: 3px; }
+        .rating-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .rating-group label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+        }
+        .rating-group input[type="radio"] { display: none; }
+        .rating-group .rating-box {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1rem;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+        .rating-group input[type="radio"]:checked + .rating-box {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.2);
+            color: var(--primary);
+        }
+        .rating-group label:hover .rating-box {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .bool-group {
+            display: flex; gap: 1rem;
+        }
+        .bool-group label {
+            flex: 1; cursor: pointer;
+        }
+        .bool-group input[type="radio"] { display: none; }
+        .bool-box {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.75rem; border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.15);
+            font-weight: 600; transition: all 0.2s;
+            color: var(--text-muted);
+        }
+        .bool-group input[type="radio"]:checked + .bool-box {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.2);
+            color: var(--primary);
+        }
+        .bool-group label:hover .bool-box {
+            border-color: var(--primary);
+        }
+        .text-answer {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        .text-answer:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .event-header-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+        .info-item label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem; }
+        .info-item p { font-size: 0.95rem; font-weight: 500; margin: 0; }
+        .student-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .form-field label {
+            display: block; font-size: 0.85rem; font-weight: 500;
+            color: var(--text-muted); margin-bottom: 0.4rem;
+        }
+        .form-field input {
+            width: 100%; box-sizing: border-box;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: var(--text-main);
+            padding: 0.7rem 1rem; font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .form-field input:focus { outline: none; border-color: var(--primary); }
+        .submit-btn {
+            width: 100%; padding: 1.1rem;
+            font-size: 1.05rem; font-weight: 700;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(99,102,241,0.3);
+            margin-top: 1rem;
+        }
+        .success-card {
+            text-align: center; padding: 3rem 2rem;
+            background: rgba(34,197,94,0.07);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 16px;
+        }
+        .success-card .icon { font-size: 3.5rem; }
+        .error-message {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            color: #fca5a5;
+            font-size: 0.9rem;
+        }
+        @media(max-width: 600px) {
+            .info-grid, .student-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container feedback-container">
+        <header style="display:flex; justify-content:space-between; align-items:center; padding:1.5rem 0; margin-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div>
+                <h1 style="font-size:1.4rem; font-weight:800; margin:0;">National Engineering College</h1>
+                <p style="color:var(--primary); font-size:0.85rem; font-weight:600; margin:0;">Event Feedback Portal</p>
+            </div>
+            <a href="/events.html" class="btn btn-secondary" style="padding:0.5rem 1.2rem; font-size:0.85rem;">← Back to Events</a>
+        </header>
+
+        <!-- Loading State -->
+        <div id="loading-state" style="text-align:center; padding:4rem 0;">
+            <div style="font-size:2rem; margin-bottom:1rem;">⏳</div>
+            <p style="color:var(--text-muted);">Loading feedback form...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" style="display:none; text-align:center; padding:4rem 0;">
+            <div style="font-size:2.5rem; margin-bottom:1rem;">🚫</div>
+            <h2 id="error-title" style="color:#ef4444;">Form Not Available</h2>
+            <p id="error-message" style="color:var(--text-muted); margin-top:0.5rem;">This feedback form is not currently available.</p>
+            <a href="/events.html" class="btn btn-primary" style="margin-top:2rem; display:inline-block;">Back to Events</a>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" style="display:none;">
+            <div class="success-card">
+                <div class="icon">🎉</div>
+                <h2 style="margin:1rem 0 0.5rem;">Feedback Submitted!</h2>
+                <p style="color:var(--text-muted);">Thank you for your feedback. Your attendance has been recorded.</p>
+                <p id="cert-note" style="color:var(--primary); font-size:0.9rem; margin-top:1rem; font-weight:500;"></p>
+                <a href="/events.html" class="btn btn-primary" style="margin-top:2rem; display:inline-block; padding:0.75rem 2.5rem;">Back to Events</a>
+            </div>
+        </div>
+
+        <!-- Feedback Form -->
+        <div id="form-state" style="display:none;">
+            <!-- Event Info -->
+            <div class="event-header-card">
+                <p style="color:var(--primary); font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin:0 0 0.4rem;">Submitting Feedback For</p>
+                <h2 id="event-title" style="margin:0; font-size:1.7rem; letter-spacing:-0.5px;">Event Name</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>📍 Venue</label>
+                        <p id="event-venue">—</p>
+                    </div>
+                    <div class="info-item">
+                        <label>📅 Date</label>
+                        <p id="event-date">—</p>
+                    </div>
+                    <div class="info-item">
+                        <label>🏛️ Club</label>
+                        <p id="event-club">—</p>
+                    </div>
+                    <div class="info-item">
+                        <label>⏰ Time</label>
+                        <p id="event-time">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="feedback-form" onsubmit="submitFeedback(event)">
+                <!-- Student Details -->
+                <h3 style="margin-bottom:1.25rem; color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Your Details</h3>
+                <div class="student-grid">
+                    <div class="form-field">
+                        <label>Full Name *</label>
+                        <input type="text" id="student-name" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-field">
+                        <label>Email Address *</label>
+                        <input type="email" id="student-email" required placeholder="Your registered email">
+                    </div>
+                    <div class="form-field">
+                        <label>Register Number *</label>
+                        <input type="text" id="student-regno" required placeholder="e.g. 21CSE001">
+                    </div>
+                    <div class="form-field">
+                        <label>Department *</label>
+                        <input type="text" id="student-dept" required placeholder="e.g. CSE, ECE">
+                    </div>
+                </div>
+
+                <!-- Questions -->
+                <h3 style="margin-bottom:1.25rem; color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Feedback Questions</h3>
+                <div id="questions-container"></div>
+
+                <div id="submit-error" class="error-message" style="display:none;"></div>
+
+                <button type="submit" class="btn btn-primary submit-btn" id="submit-btn">
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5000';
+        let eventId = null;
+        let formQuestions = [];
+
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            eventId = params.get('id');
+
+            if (!eventId) {
+                showError('Invalid Link', 'No event ID was provided in the URL.');
+                return;
+            }
+
+            try {
+                // Load event details
+                const eventsRes = await fetch(`${API}/api/events/published`);
+                const events = await eventsRes.json();
+                const event = events.find(e => e._id === eventId);
+
+                if (!event) {
+                    showError('Event Not Found', 'This event does not exist or feedback is not enabled.');
+                    return;
+                }
+
+                if (!event.feedbackEnabled) {
+                    showError('Feedback Not Available', 'The coordinator has not enabled feedback for this event yet.');
+                    return;
+                }
+
+                // Populate event details
+                document.getElementById('event-title').textContent = event.title;
+                document.getElementById('event-venue').textContent = event.venue || '—';
+                document.getElementById('event-date').textContent = new Date(event.date).toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+                document.getElementById('event-club').textContent = event.clubId?.clubName || event.associationId?.name || '—';
+                document.getElementById('event-time').textContent = event.time || '—';
+
+                // Load feedback form questions
+                const formRes = await fetch(`${API}/api/feedback-form/event/${eventId}`);
+                if (!formRes.ok) {
+                    showError('Form Not Found', 'No feedback form has been set up for this event yet.');
+                    return;
+                }
+
+                const form = await formRes.json();
+                
+                // Time-based access control
+                const now = new Date();
+                if (form.startTime && now < new Date(form.startTime)) {
+                    showError('Form Not Yet Active', `This feedback form will be available from ${new Date(form.startTime).toLocaleString()}.`);
+                    return;
+                }
+                if (form.endTime && now > new Date(form.endTime)) {
+                    showError('Form Closed', `This feedback form closed at ${new Date(form.endTime).toLocaleString()}.`);
+                    return;
+                }
+
+                if (!form.isPublished && !form.isEnabled) {
+                    showError('Form Not Published', 'The feedback form has not been published by the coordinator yet. Please check back later.');
+                    return;
+                }
+
+                formQuestions = form.questions || [];
+                renderQuestions(formQuestions);
+
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('form-state').style.display = 'block';
+
+            } catch (err) {
+                showError('Connection Error', 'Could not connect to the server. Please try again later.');
+            }
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = questions.map((q, i) => {
+                const required = q.required ? `<span class="required-star">*</span>` : '';
+                let inputHtml = '';
+
+                if (q.type === 'rating') {
+                    inputHtml = `
+                        <div class="rating-group">
+                            ${[1,2,3,4,5].map(n => `
+                                <label>
+                                    <input type="radio" name="q_${i}" value="${n}" ${q.required ? 'required' : ''}>
+                                    <div class="rating-box">${n}</div>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">1 = Poor &nbsp;·&nbsp; 5 = Excellent</p>
+                    `;
+                } else if (q.type === 'boolean') {
+                    inputHtml = `
+                        <div class="bool-group">
+                            <label>
+                                <input type="radio" name="q_${i}" value="Yes" ${q.required ? 'required' : ''}>
+                                <div class="bool-box">✅ Yes</div>
+                            </label>
+                            <label>
+                                <input type="radio" name="q_${i}" value="No">
+                                <div class="bool-box">❌ No</div>
+                            </label>
+                        </div>
+                    `;
+                } else {
+                    inputHtml = `<textarea class="text-answer" name="q_${i}" rows="3" placeholder="Type your answer here..." ${q.required ? 'required' : ''}></textarea>`;
+                }
+
+                return `
+                    <div class="question-card">
+                        <span class="question-label">Q${i+1}. ${q.questionText}${required}</span>
+                        ${inputHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function submitFeedback(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const errorDiv = document.getElementById('submit-error');
+            errorDiv.style.display = 'none';
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            const studentName = document.getElementById('student-name').value.trim();
+            const email = document.getElementById('student-email').value.trim();
+            const registerNumber = document.getElementById('student-regno').value.trim();
+            const department = document.getElementById('student-dept').value.trim();
+
+            // Gather answers
+            const answers = formQuestions.map((q, i) => {
+                let answer = '';
+                const el = document.querySelector(`[name="q_${i}"]:checked`) || document.querySelector(`[name="q_${i}"]`);
+                if (q.type === 'rating' || q.type === 'boolean') {
+                    const checked = document.querySelector(`[name="q_${i}"]:checked`);
+                    answer = checked ? checked.value : '';
+                } else {
+                    const textarea = document.querySelector(`textarea[name="q_${i}"]`);
+                    answer = textarea ? textarea.value.trim() : '';
+                }
+                return { questionText: q.questionText, answer };
+            });
+
+            // Check required answers
+            for (let i = 0; i < formQuestions.length; i++) {
+                if (formQuestions[i].required && !answers[i].answer) {
+                    errorDiv.textContent = `Please answer Question ${i + 1}: "${formQuestions[i].questionText}"`;
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Feedback';
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch(`${API}/api/feedback/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventId, studentName, email, registerNumber, department, answers })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('form-state').style.display = 'none';
+                    document.getElementById('success-state').style.display = 'block';
+                    document.getElementById('cert-note').textContent = 'Your participation certificate will be sent to your email once it is generated by the coordinator.';
+                } else {
+                    errorDiv.textContent = data.message || 'Submission failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Feedback';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Connection error. Please check your internet and try again.';
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Submit Feedback';
+            }
+        }
+
+        function showError(title, message) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-title').textContent = title;
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-state').style.display = 'block';
+        }
+
+        init();
+    </script>
+</body>
+</html>

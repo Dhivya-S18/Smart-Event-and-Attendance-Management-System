@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Report - National Engineering College</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        .report-form-card {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 3rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 2px solid rgba(255,255,255,0.05);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+        }
+        .nec-logo {
+            width: 80px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        .dynamic-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(220, 38, 38, 0.1);
+            color: #ef4444;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .export-bar {
+            position: sticky;
+            top: 0;
+            background: var(--bg-dark);
+            z-index: 100;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .winner-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr;
+            gap: 1rem;
+        }
+        @media print {
+            .export-bar, .pic-edit-btn, .remove-btn, .btn-primary { display: none; }
+        }
+    </style>
+</head>
+<body class="dashboard-container">
+    <div class="container">
+        <div class="export-bar">
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button onclick="window.history.back()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">← Back</button>
+                <h3 id="event-title-main" style="margin:0; font-size: 1.1rem; opacity: 0.8;">Event Report</h3>
+            </div>
+            <div style="display: flex; gap: 0.8rem;">
+                <button id="save-btn" class="btn btn-primary" onclick="report.save()" style="display: none; background: #4f46e5; border: none; font-weight: 600;">Save Changes</button>
+                <button id="download-pdf-btn" class="btn btn-success" onclick="report.download('pdf')" style="background: #dc2626; border: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">Download PDF</button>
+                <button id="download-docx-btn" class="btn btn-primary" onclick="report.download('docx')" style="background: #2563eb; border: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">Download Word</button>
+            </div>
+
+        </div>
+
+        <div class="card report-form-card">
+            <div class="report-header">
+                <img src="http://localhost:5000/uploads/nec_logo.png" alt="NEC Logo" class="nec-logo" onerror="this.src='https://www.nec.edu.in/wp-content/uploads/2019/08/logo.png'">
+
+                <div style="text-align: center; flex: 1;">
+                    <h1 style="font-size: 2rem; letter-spacing: -1px; margin-bottom: 0.3rem;">National Engineering College</h1>
+                    <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px;">(An Autonomous Institution, Affiliated to Anna University, Chennai)</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">K.R. Nagar, Kovilpatti - 628 503</p>
+                </div>
+            </div>            <div style="text-align: center; margin-bottom: 2rem;">
+                 <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 5px;">Event Report</h2>
+                 <p id="event-club-name" style="color: var(--primary); font-weight: 700; font-size: 1.4rem; margin-top: 1rem;"></p>
+            </div>
+
+            <!-- Basic Info Section -->
+            <div style="margin-bottom: 2.5rem;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold; width: 25%; color: var(--text-muted);">Event Name</td>
+                        <td style="padding: 10px; width: 5%; color: var(--text-muted);">:</td>
+                        <td id="report-title" style="padding: 10px; font-weight: 600; font-size: 1.1rem;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold; color: var(--text-muted);">Venue</td>
+                        <td style="padding: 10px; color: var(--text-muted);">:</td>
+                        <td id="report-venue" style="padding: 10px; font-weight: 600;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold; color: var(--text-muted);">Date & Time</td>
+                        <td style="padding: 10px; color: var(--text-muted);">:</td>
+                        <td id="report-date-time" style="padding: 10px; font-weight: 600;">-</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+                <label style="font-size: 1.1rem; color: var(--primary); font-weight: 700;">Description of the event conductance:</label>
+                <textarea id="report-desc" rows="6" placeholder="Describe how the event was conducted..." style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px;"></textarea>
+            </div>
+
+            <!-- Rounds Section -->
+            <div id="rounds-section">
+                <div class="section-header">
+                    <h3 style="color: var(--primary); margin: 0;">Event Rounds</h3>
+                    <button id="add-round-btn" class="btn btn-secondary" onclick="report.addRound()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Round</button>
+                </div>
+                <div id="rounds-container"></div>
+            </div>
+
+            <!-- Winners Section -->
+            <div class="section-header">
+                <h3 style="color: var(--primary); margin: 0;">Winners List</h3>
+                <button id="add-winner-btn" class="btn btn-secondary" onclick="report.addWinner()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Winner</button>
+            </div>
+            <div id="winners-container" style="margin-bottom: 2rem;"></div>
+
+            <!-- Participants Section -->
+            <div class="section-header">
+                <h3 style="color: var(--primary); margin: 0;">Participants List</h3>
+                <span id="p-count" style="font-size: 0.8rem; opacity: 0.6;"></span>
+            </div>
+            <div class="table-container" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 3rem;">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr><th style="width: 10%;">S.No</th><th style="width: 60%;">Student Name</th><th style="width: 30%;">Year - Dept</th></tr>
+                    </thead>
+                    <tbody id="participants-list-body">
+                        <tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading participants...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Photos Section -->
+            <div class="section-header">
+                <h3 style="color: var(--primary); margin: 0;">Event Highlights / Photos</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="file" id="report-photo-upload" style="display: none;" accept="image/*" onchange="report.uploadPhoto(this)">
+                    <button id="upload-photo-btn" class="btn btn-secondary" onclick="document.getElementById('report-photo-upload').click()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #4f46e5; border: none;">+ Upload Photo</button>
+                    <button id="add-photo-btn" class="btn btn-secondary" onclick="report.addPhoto()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Photo URL</button>
+                </div>
+            </div>
+            <div id="photos-container" class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 4rem;"></div>
+
+
+            <!-- Footnote/Signatures -->
+            <div style="margin-top: 8rem; display: flex; justify-content: space-between; text-align: center; gap: 2rem;">
+                <div style="flex: 1;">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                        <p style="font-weight: bold; margin-bottom: 0.2rem; font-size: 0.9rem; color: var(--text-main);">Staff Coordinator</p>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                        <p style="font-weight: bold; margin-bottom: 0.2rem; font-size: 0.9rem; color: var(--text-main);">HOD / CSE</p>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                        <p style="font-weight: bold; margin-bottom: 0.2rem; font-size: 0.9rem; color: var(--text-main);">Dean SA&IR</p>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                        <p style="font-weight: bold; margin-bottom: 0.2rem; font-size: 0.9rem; color: var(--text-main);">Principal</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/report.js"></script>
+</body>
+</html>

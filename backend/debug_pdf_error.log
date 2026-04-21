@@ -1,0 +1,3 @@
+TypeError: doc.fontSize(...).font(...).italic is not a function
+    at generatePDF (D:\club-event-management\backend\controllers\reportController.js:263:47)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

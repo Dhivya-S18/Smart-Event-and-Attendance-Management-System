@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard - Club Event Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="dashboard-container">
+    <aside class="sidebar">
+        <h2>HOD Hub</h2>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" onclick="showSection('review')">Academic Review</a></li>
+                <li><a href="#" onclick="showSection('team')">Association Team</a></li>
+                <li><a href="#" onclick="showSection('profile')">Profile</a></li>
+                <li><a href="#" onclick="auth.logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 id="welcome-msg">Welcome, HOD</h1>
+            <div class="notification-wrapper" id="notif-trigger">
+                <span style="font-size: 1.4rem;">🔔</span>
+                <span id="notif-badge" class="notification-badge" style="display: none;">0</span>
+                <div id="notif-panel" class="notification-panel">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                        <button class="btn" style="background: transparent; font-size: 0.75rem; color: var(--text-muted); cursor: pointer;" onclick="hod.markAllRead(event)">Mark all as read</button>
+                    </div>
+                    <div id="notif-list" class="notification-list">
+                        <div class="notification-empty">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section id="review-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">Academic Review</h2>
+            </div>
+            
+            <!-- Search & Filters -->
+            <div class="search-filter-bar" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 2; min-width: 250px; position: relative;">
+                    <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.4; font-size: 0.8rem;">🔍</span>
+                    <input type="text" id="hod-search" placeholder="Search by event title or club name..." 
+                           style="width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;"
+                           oninput="hod.filterPending()">
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                    <input type="date" id="hod-date-filter" onchange="hod.filterPending()" 
+                           style="width: 100%; padding: 0.5rem 0.8rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;">
+                </div>
+            </div>
+
+            <div class="table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Club</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Status</th>
+                            <th>Documents</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hod-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Clubs Section -->
+        <section id="clubs-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0;">College Clubs</h2>
+                <div style="position: relative; width: 300px;">
+                    <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.4; font-size: 0.8rem;">🔍</span>
+                    <input type="text" id="club-search" placeholder="Search clubs by name..." 
+                           style="width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;"
+                           oninput="hod.filterClubs()">
+                </div>
+            </div>
+            <div id="hod-clubs-grid" class="stats-grid"></div>
+        </section>
+            <div id="hod-clubs-grid" class="stats-grid"></div>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h2 style="margin: 0;" id="team-assoc-name">Association Team</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="team-dept-name">Loading department...</p>
+                </div>
+                <button class="btn btn-primary" onclick="hod.openAddStudentModal()">+ Add Student Coordinator</button>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--primary);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Lead HOD (You)</label>
+                    <h3 id="team-hod-name" style="margin-top: 0.5rem;">Loading...</h3>
+                    <p id="team-hod-email" style="font-size: 0.8rem; opacity: 0.7;"></p>
+                </div>
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--success);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Student Coordinators</label>
+                    <h3 id="team-student-count" style="margin-top: 0.5rem;">0</h3>
+                </div>
+            </div>
+
+            <h3>Staff Coordinators</h3>
+            <div id="team-staff-list" class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin-bottom: 2rem;">
+                <!-- Staff cards will be here -->
+            </div>
+
+            <h3>Student Coordinators</h3>
+            <div id="team-student-list" class="table-container card" style="margin-top: 1rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reg No</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team-student-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" style="display: none;">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-display" src="../assets/default-avatar.png" alt="Profile Picture">
+                        <label for="profile-pic-input" class="pic-edit-btn" title="Update Photo">
+                            <i>📷</i>
+                            <input type="file" id="profile-pic-input" hidden accept="image/*">
+                        </label>
+                        <button class="pic-delete-btn" onclick="hod.deleteProfilePic()" title="Remove Photo">
+                            <i>✕</i>
+                        </button>
+                    </div>
+                    <div class="profile-info-basic">
+                        <h2 id="display-name">User Name</h2>
+                        <p id="display-role">HOD</p>
+                        <button class="btn btn-primary" id="edit-profile-btn" onclick="hod.toggleProfileEdit(true)">Edit Profile</button>
+                    </div>
+                </div>
+
+                <div id="profile-view-mode">
+                    <div class="profile-details-grid">
+                        <div class="detail-item">
+                            <label>Email</label>
+                            <p id="view-email">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phone</label>
+                            <p id="view-phone">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <p id="view-dept">-</p>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <label>Bio</label>
+                            <p id="view-bio" style="font-style: italic; color: var(--text-muted); line-height: 1.5;">No bio added yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profile-edit-mode" style="display: none;">
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="profile-dept-input" placeholder="e.g. Science and Humanities">
+                        </div>
+                        <div class="form-group">
+                            <label>Bio</label>
+                            <textarea id="profile-bio-input" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn" style="background: var(--bg-dark);" onclick="hod.toggleProfileEdit(false)">Cancel</button>
+                        </div>
+                        <p id="profile-msg" class="feedback-msg"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Club Detail Modal (Same as Admin) -->
+    <div id="club-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                <div>
+                    <h2 id="club-modal-name" style="color: var(--primary);">Club Name</h2>
+                    <p id="club-modal-dept" style="color: var(--text-muted);">Department</p>
+                </div>
+                <button class="btn" style="background: #334155;" onclick="hod.closeClubModal()">Close</button>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Staff Coordinator</p>
+                    <p id="club-modal-staff" style="font-weight: 600;">Name</p>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Student Coordinator</p>
+                    <p id="club-modal-student" style="font-weight: 600;">Name</p>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Reports</p>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
+                        <input type="month" id="report-month" style="padding: 0.2rem; background: var(--bg-dark); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 4px; font-size: 0.8rem;">
+                        <button class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="hod.downloadClubReport()">PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                <button class="tab-btn active" id="tab-published" onclick="hod.switchClubTab('published')">Upcoming</button>
+                <button class="tab-btn" id="tab-completed" onclick="hod.switchClubTab('completed')">Completed</button>
+                <button class="tab-btn" id="tab-approved" onclick="hod.switchClubTab('approved')">Approved</button>
+                <button class="tab-btn" id="tab-pending" onclick="hod.switchClubTab('pending')">Pending</button>
+            </div>
+
+            <div class="table-container">
+                <table style="font-size: 0.9rem;">
+                    <thead>
+                        <tr><th>Event</th><th>Date</th><th>Venue</th><th>Attendance</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="club-events-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div id="rejection-modal" class="modal">
+        <div class="modal-content card">
+            <h2>Reject Event Request</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Please provide a reason for the rejection. This feedback will be sent back to the coordinators.</p>
+            <form id="rejection-form">
+                <input type="hidden" id="reject-event-id">
+                <div class="form-group">
+                    <label>Reason for Rejection</label>
+                    <textarea id="reject-reason" rows="4" required placeholder="e.g. Please clarify competition rules or fix the date..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="background: var(--accent);">Confirm Reject</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('rejection-modal').style.display = 'none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Student Coordinator Modal -->
+    <div id="add-student-modal" class="modal">
+        <div class="modal-content card" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Add Coordinator</h2>
+            <form id="add-student-form">
+                <div class="form-group">
+                    <label>Student Email</label>
+                    <input type="email" id="new-student-email" placeholder="student@nec.edu.in" required>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem;">Student must already have a registered account.</p>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="hod.addStudentCoordinator(event)">Add to Team</button>
+                    <button type="button" class="btn" style="background: #334155;" onclick="document.getElementById('add-student-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/hod.js"></script>
+</body>
+</html>

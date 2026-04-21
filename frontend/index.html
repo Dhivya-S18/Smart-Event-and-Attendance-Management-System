@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Event Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+</head>
+
+<body>
+    <div class="container">
+        <header
+            style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div class="logo">
+                <h7
+                    style="font-size: 5.8rem; font-weight: 800; color: var(--text-main); letter-spacing: -1.5px; margin: 0;">
+                    National Engineering College</h7>
+                <p
+                    style="color: var(--primary); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; margin: 0; margin-top: 0.2rem;">
+                    Event Management System</p>
+            </div>
+            <div id="auth-links" class="nav-links" style="display: flex; gap: 0.8rem;">
+                <a href="join-club.html" class="btn btn-primary"
+                   style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 6px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);">Join a Club</a>
+                <a href="login.html" class="btn btn-primary"
+                    style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 6px; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);">Login</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero" style="text-align: center; padding: 5rem 0 3rem; position: relative;">
+                <div class="hero-bg-blobs">
+                    <div class="hero-blob blob-1"></div>
+                    <div class="hero-blob blob-2"></div>
+                </div>
+                <div class="hero-content" style="position: relative; z-index: 1;">
+                    <h2 style="font-size: 3.5rem; letter-spacing: -1px; margin-bottom: 1.5rem;">Explore Upcoming <span
+                            style="color: var(--primary);">Events</span></h2>
+                    <p
+                        style="font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2.5rem; line-height: 1.8;">
+                        Discover, participate, and excel in technical symposiums, workshops, and club activities
+                        happening across the campus. Your journey to excellence starts here.</p>
+                    <a href="events.html" class="btn btn-primary"
+                        style="padding: 1rem 3rem; font-size: 1.15rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); display: inline-block;">🎯
+                        View Upcoming Events</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- React root hidden on landing page -->
+    <div id="root" style="display: none;"></div>
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

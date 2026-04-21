@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Invitation - Club Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-dark);">
+    <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem;">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary);">Complete Your Profile</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">Please set up your profile details and password to register your account.</p>
+        <form id="accept-form">
+            <!-- Name field removed as accounts are pre-seeded -->
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" required placeholder="+91 9876543210">
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="password">New Password</label>
+                <input type="password" id="password" required placeholder="••••••••" minlength="6">
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" required placeholder="••••••••" minlength="6">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1.5rem;">Create Account</button>
+            <p id="error-msg" style="color: var(--danger); text-align: center; margin-top: 1rem; display: none;"></p>
+            <p id="success-msg" style="color: #10b981; text-align: center; margin-top: 1rem; display: none;"></p>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (!token) {
+            alert("Invalid invitation link. Redirecting to login...");
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('accept-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Name field removed
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorMsg = document.getElementById('error-msg');
+            const successMsg = document.getElementById('success-msg');
+
+            if (password !== confirmPassword) {
+                errorMsg.textContent = "Passwords do not match";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/accept-invite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password, phone })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    successMsg.textContent = "Profile setup successfully! Redirecting to login...";
+                    successMsg.style.display = 'block';
+                    errorMsg.style.display = 'none';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                } else {
+                    errorMsg.textContent = data.message || "Registration failed";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = "Connection error";
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

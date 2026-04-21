@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Club Event Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+</head>
+
+<body class="dashboard-container">
+    <aside class="sidebar">
+        <h2>Student Hub</h2>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" onclick="showSection('overview')">Overview</a></li>
+                <li id="workflow-nav" style="display: none;"><a href="#" onclick="showSection('workflow')">Events Workflow</a></li>
+                <li id="create-nav" style="display: none;"><a href="#" onclick="showSection('events')">Create Event</a></li>
+                <li><a href="#" onclick="showSection('completed')">Completed Events</a></li>
+                <li><a href="#" onclick="showSection('profile')">Profile</a></li>
+                <li><a href="#" onclick="auth.logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1 id="welcome-msg">Welcome, Student</h1>
+            <div id="club-status" class="btn" style="background: rgba(255,255,255,0.05);">checking club...</div>
+        </header>
+
+        <!-- Overview Section -->
+        <section id="overview-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0;">Published Events</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="badge badge-success">Live</span>
+                    <span class="badge badge-secondary">Completed</span>
+                </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="search-filter-bar" style="background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 2; min-width: 200px; position: relative;">
+                    <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.9rem;">🔍</span>
+                    <input type="text" id="event-search" placeholder="Search by event name..." 
+                           style="width: 100%; padding: 0.6rem 0.8rem 0.6rem 2.2rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none; font-size: 0.9rem;"
+                           oninput="student.filterPublishedEvents()">
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                    <input type="date" id="date-filter" onchange="student.filterPublishedEvents()" 
+                           style="width: 100%; padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; outline: none; font-size: 0.9rem;">
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem;">Upcoming Events</h3>
+            <div id="published-grid" class="stats-grid" style="margin-bottom: 3rem;"></div>
+        </section>
+
+        <!-- Completed Events Section -->
+        <section id="completed-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0;">Completed Events Archive</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="badge badge-secondary">History</span>
+                </div>
+            </div>
+            <div id="completed-grid" class="stats-grid"></div>
+        </section>
+
+        <!-- Clubs Section -->
+        <section id="clubs-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0;">Club Hub</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="badge badge-primary">Register Now</span>
+                </div>
+            </div>
+            
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Discover and join college clubs to stay updated with their events and activities.</p>
+            
+            <div id="clubs-grid" class="stats-grid">
+                <!-- Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- Event Creation Section -->
+        <section id="events-section" style="display: none;">
+            <h2 style="margin-bottom: 1.5rem;">Submit Event Request</h2>
+            <div id="event-form-container" class="card" style="max-width: 600px;">
+                <form id="event-form">
+                    <div class="form-group">
+                        <label>Event Title</label>
+                        <input type="text" id="event-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="event-desc" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Event Date</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Event Start Time</label>
+                            <input type="time" id="event-time" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Event End Time</label>
+                            <input type="time" id="event-end-time" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Venue</label>
+                        <input type="text" id="event-venue" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rules</label>
+                        <textarea id="event-rules" required placeholder="Enter event rules..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Information</label>
+                        <textarea id="event-contact" required placeholder="Name, Phone, Email..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Participation Type</label>
+                        <select id="participation-type" required
+                            onchange="student.onParticipationTypeChange(this.value, 'max-participants-group', 'max-team-group')">
+                            <option value="Individual">Individual</option>
+                            <option value="Team">Team</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="max-participants-group">
+                        <label>Registration Limit (Max Participants)</label>
+                        <input type="number" id="max-participants" min="1" value="100">
+                    </div>
+                    <div class="form-group" id="max-team-group" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label>Registration Limit (Max Teams)</label>
+                                <input type="number" id="max-teams" min="1" value="20">
+                            </div>
+                            <div>
+                                <label>Team Size</label>
+                                <input type="number" id="max-team-size" min="2" value="4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="coordinator-select-group">
+                        <label>Select Staff Coordinator</label>
+                        <select id="staff-coordinator" required>
+                            <option value="">Loading coordinators...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Allowed Years <span style="color: var(--accent);">*</span> (At least one required)</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="allowed-years">
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="1"> 1st Year</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="2"> 2nd Year</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="3"> 3rd Year</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="4"> 4th Year</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="allowed-depts-group">
+                        <label>Allowed Departments (Leave unchecked for all)</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="allowed-depts">
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="CSE"> CSE</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="IT"> IT</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="ECE"> ECE</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="EEE"> EEE</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="Mech"> Mech</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="Civil"> Civil</label>
+                            <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="AIDS"> AIDS</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Proposal</button>
+                    <p id="event-msg" style="margin-top: 1rem;"></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Club Workflow Section -->
+        <section id="workflow-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0;">My Proposals</h2>
+                <span class="badge badge-warning">Needs Action</span>
+            </div>
+            
+            <!-- Simple Search for Proposals -->
+            <div style="margin-bottom: 1.5rem; position: relative;">
+                <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.4; font-size: 0.8rem;">🔍</span>
+                <input type="text" id="proposal-search" placeholder="Search proposals..." 
+                       style="width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;"
+                       oninput="student.filterProposals()">
+            </div>
+
+            <div id="my-proposals-grid" class="stats-grid" style="margin-bottom: 3rem;">
+                <p style="color: var(--text-muted);">No pending proposals.</p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; margin-top: 2rem;">
+
+            <h2 style="margin-bottom: 1.5rem;">Active Events Workflow</h2>
+            <div id="workflow-events-container">
+                <!-- Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" style="display: none;">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-display" src="../assets/default-avatar.png" alt="Profile Picture">
+                        <label for="profile-pic-input" class="pic-edit-btn" title="Update Photo">
+                            <i>📷</i>
+                            <input type="file" id="profile-pic-input" hidden accept="image/*">
+                        </label>
+                        <button class="pic-delete-btn" onclick="student.deleteProfilePic()" title="Remove Photo">
+                            <i>✕</i>
+                        </button>
+                    </div>
+                    <div class="profile-info-basic">
+                        <h2 id="display-name">User Name</h2>
+                        <p id="display-role">Student</p>
+                        <button class="btn btn-primary" id="edit-profile-btn"
+                            onclick="student.toggleProfileEdit(true)">Edit Profile</button>
+                    </div>
+                </div>
+
+                <div id="profile-view-mode">
+                    <div class="profile-details-grid">
+                        <div class="detail-item">
+                            <label>Email</label>
+                            <p id="view-email">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phone</label>
+                            <p id="view-phone">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Register Number</label>
+                            <p id="view-reg">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <p id="view-dept">-</p>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <label>Bio</label>
+                            <p id="view-bio" style="font-style: italic; color: var(--text-muted); line-height: 1.5;">No
+                                bio added yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profile-edit-mode" style="display: none;">
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Register Number</label>
+                            <input type="text" id="profile-reg-no-input">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Department</label>
+                            <input type="text" id="profile-dept-input"
+                                placeholder="e.g. Computer Science and Engineering">
+                        </div>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label>Bio</label>
+                            <textarea id="profile-bio-input" rows="3"
+                                placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn" style="background: var(--bg-dark);"
+                                onclick="student.toggleProfileEdit(false)">Cancel</button>
+                        </div>
+                        <p id="profile-msg" class="feedback-msg"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Poster Modal -->
+    <div id="poster-modal" class="modal">
+        <div class="modal-content card">
+            <h2>Poster Preparation</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Set a tagline for the event poster.</p>
+            <form id="poster-form">
+                <input type="hidden" id="poster-event-id">
+                <div class="form-group">
+                    <label>Poster Template</label>
+                    <select id="poster-template" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #0f172a; color: white;">
+                        <option value="1">Template 1: Tech/Neon (Blue/Orange)</option>
+                        <option value="2">Template 2: Minimal Academic (Light)</option>
+                        <option value="3">Template 3: Dark Corporate (Gold)</option>
+                        <option value="4">Template 4: Vibrant Gradient (Pink/Orange)</option>
+                        <option value="5">Template 5: Cyberpunk (Red/Yellow)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Poster Tagline</label>
+                    <input type="text" id="poster-tagline" placeholder="e.g. Unleash your potential!">
+                </div>
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" id="poster-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Club Name</label>
+                    <input type="text" id="poster-club" required>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" id="poster-venue" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="poster-date" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Start Time</label>
+                        <input type="time" id="poster-time" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>End Time</label>
+                        <input type="time" id="poster-end-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Rules Summary</label>
+                    <textarea id="poster-rules" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Student Coordinator 1</label>
+                    <input type="text" id="poster-coord-1" required>
+                </div>
+                <div class="form-group">
+                    <label>Student Coordinator 2 (Optional)</label>
+                    <select id="poster-coord-2">
+                        <option value="">-- Choose Student Coordinator --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" id="poster-dept" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Update & Generate Poster</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('poster-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Registration Link Modal -->
+    <div id="registration-modal" class="modal">
+        <div class="modal-content card">
+            <h2>Registration Setup</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Enable registration for this event.</p>
+            <form id="registration-setup-form">
+                <input type="hidden" id="reg-event-id">
+                <p>This will generate a registration link for students to sign up. The form will automatically collect
+                    Name, Dept, Year, Reg No, Email, and Teammate details if applicable.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Enable & Generate Link</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('registration-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Circular Modal -->
+    <div id="circular-modal" class="modal">
+        <div class="modal-content card">
+            <h2>Circular Preparation</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Review and finalize details for the official
+                circular.</p>
+            <form id="circular-form">
+                <input type="hidden" id="circular-event-id">
+                <div id="circular-preview-details" style="margin-bottom: 1.5rem; font-size: 0.9rem; opacity: 0.8;">
+                    <!-- Filled via JS -->
+                </div>
+                <div class="form-group">
+                    <label>Club/Association Name</label>
+                    <input type="text" id="circular-association" placeholder="e.g. CSE ASSOCIATION" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Rules & Description</label>
+                    <textarea id="circular-rules" rows="4" required></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Generate PDF & Send to HOD</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('circular-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <h2>Edit & Resubmit Proposal</h2>
+            <p style="margin-bottom: 1rem; color: var(--warning);" id="edit-feedback-msg"></p>
+            <form id="edit-form">
+                <input type="hidden" id="edit-event-id">
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit-desc" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Event Start Time</label>
+                        <input type="time" id="edit-time" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Event End Time</label>
+                        <input type="time" id="edit-end-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" id="edit-venue" required>
+                </div>
+                <div class="form-group">
+                    <label>Rules</label>
+                    <textarea id="edit-rules" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Contact Information</label>
+                    <textarea id="edit-contact" required placeholder="Name, Phone, Email..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Participation Type</label>
+                    <select id="edit-participation-type" required
+                        onchange="student.onParticipationTypeChange(this.value, 'edit-max-participants-group', 'edit-max-team-group')">
+                        <option value="Individual">Individual</option>
+                        <option value="Team">Team</option>
+                    </select>
+                </div>
+                <div class="form-group" id="edit-max-participants-group">
+                    <label>Max Participants (Registration Limit)</label>
+                    <input type="number" id="edit-max-participants" min="1">
+                </div>
+                <div class="form-group" id="edit-max-team-group" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label>Max Teams</label>
+                            <input type="number" id="edit-max-teams" min="1">
+                        </div>
+                        <div>
+                            <label>Team Size</label>
+                            <input type="number" id="edit-max-team-size" min="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Allowed Years <span style="color: var(--accent);">*</span> (At least one required)</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="edit-allowed-years">
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="1"> 1st Year</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="2"> 2nd Year</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="3"> 3rd Year</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="4"> 4th Year</label>
+                    </div>
+                </div>
+                <div class="form-group" id="edit-allowed-depts-group">
+                    <label>Allowed Departments (Leave unchecked for all)</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="edit-allowed-depts">
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="CSE"> CSE</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="IT"> IT</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="ECE"> ECE</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="EEE"> EEE</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="Mech"> Mech</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="Civil"> Civil</label>
+                        <label style="text-transform: none; font-weight: normal; font-size: 0.9rem;"><input type="checkbox" value="AIDS"> AIDS</label>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Update & Resend Proposal</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('edit-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Publishedshed Event Details Modal -->
+    <div id="published-event-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 id="pub-modal-title">Event Assets</h2>
+                    <p id="pub-modal-club" style="color: var(--primary); font-size: 0.9rem;"></p>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;"
+                    onclick="document.getElementById('published-event-modal').classList.remove('show')">✕ Close</button>
+            </div>
+
+            <div id="pub-poster-container" style="margin-bottom: 1.5rem; text-align: center;">
+                <img id="pub-poster-img" src=""
+                    style="max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: none;">
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Official Circular</p>
+                    <button class="btn btn-primary" id="pub-view-circular"
+                        style="width: 100%; padding: 0.5rem; font-size: 0.8rem;">View PDF</button>
+                </div>
+                <div class="card" style="padding: 1rem; text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Registration Link</p>
+                    <button class="btn btn-secondary" id="pub-copy-link"
+                        style="width: 100%; padding: 0.5rem; font-size: 0.8rem;">Copy Link</button>
+                </div>
+            </div>
+
+            <div class="card" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Public Registration URL
+                </p>
+                <code id="pub-reg-url" style="font-size: 0.75rem; word-break: break-all; color: var(--primary);"></code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrations Modal -->
+    <div id="registrations-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 id="reg-modal-title">Registered Students</h2>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                        <p id="reg-modal-count" style="color: var(--primary); font-weight: 600; margin: 0;"></p>
+                        <button id="export-excel-btn" class="btn btn-success"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">📊 Download Excel</button>
+                    </div>
+                </div>
+                <button class="btn" style="background: #334155;"
+                    onclick="document.getElementById('registrations-modal').classList.remove('show')">Close</button>
+            </div>
+            <div class="table-container">
+                <table style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Reg No</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reg-modal-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Management Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 id="feedback-modal-title">Manage Feedback</h2>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;"
+                    onclick="document.getElementById('feedback-modal').classList.remove('show')">✕ Close</button>
+            </div>
+            
+            <div id="feedback-not-created" style="display: none; text-align: center; margin: 2rem 0;">
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">No feedback form has been created for this event yet.</p>
+                <button class="btn btn-primary" onclick="student.createFeedbackForm()">Create Feedback Form</button>
+            </div>
+
+            <div id="feedback-form-editor" style="display: none;">
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Edit the questions and set the feedback active time window.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; opacity: 0.7;">Start Time</label>
+                        <input type="datetime-local" id="feedback-start-time" style="width: 100%; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; padding: 0.5rem; border-radius: 6px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; opacity: 0.7;">End Time</label>
+                        <input type="datetime-local" id="feedback-end-time" style="width: 100%; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; padding: 0.5rem; border-radius: 6px;">
+                    </div>
+                </div>
+                
+                <div id="feedback-questions-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Filled via JS -->
+                </div>
+                
+                <button class="btn btn-secondary" onclick="student.addFeedbackQuestion()" style="margin-bottom: 2rem; width: 100%;">+ Add New Question</button>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="student.saveFeedbackQuestions()" style="flex: 1;">Save Changes</button>
+                    <button class="btn btn-success" onclick="student.publishFeedbackForm()" style="flex: 1;">Enable / Publish Form</button>
+                </div>
+            </div>
+
+            <div id="feedback-published-view" style="display: none; text-align: center; margin: 2rem 0;">
+                <p style="color: var(--success); font-weight: bold; margin-bottom: 1rem;">Feedback Form is Published</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <button class="btn btn-secondary" onclick="student.copyFeedbackLink()" style="padding: 0.8rem; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);">📋 Copy Link</button>
+                    <button class="btn btn-secondary" onclick="student.downloadFeedbackQR()" style="padding: 0.8rem; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);">📥 Download QR</button>
+                </div>
+
+                <button class="btn btn-primary" onclick="student.showFeedbackQR()" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; padding: 1.2rem; width: 100%; border-radius: 12px; margin-bottom: 1.5rem; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+                    🎥 Display QR for Projection
+                </button>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">Extend Feedback Time</p>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="datetime-local" id="extend-feedback-endtime" style="flex: 1; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white;">
+                        <button class="btn btn-success" onclick="student.extendFeedbackTime()" style="padding: 0.5rem 1rem;">Update</button>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="btn btn-success" onclick="student.downloadFinalAttendance()" style="padding: 1rem;">
+                        Download Final Attendance (Excel)
+                    </button>
+                    <button class="btn btn-primary" id="certificate-btn" onclick="student.generateCertificates()" style="padding: 1rem;">
+                        Generate &amp; Send Certificates
+                    </button>
+                    <button class="btn" id="toggle-reg-btn" onclick="student.toggleRegistration()" style="padding: 1rem; background: #64748b; color: white;">
+                        Close Registration
+                    </button>
+                    <button class="btn" onclick="student.closeEvent()" style="padding: 1rem; background: #ef4444; color: white;">
+                        Close Feedback &amp; Complete Event
+                    </button>
+                    <button class="btn btn-secondary" id="download-zip-btn" onclick="student.downloadCertificatesZip()" style="padding: 1rem; display: none;">
+                        Download Certificates (ZIP)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Projection Modal -->
+    <div id="qr-projection-modal" class="modal" style="background: rgba(0,0,0,0.95); z-index: 3000;">
+        <div class="modal-content card" style="max-width: 700px; text-align: center; padding: 3rem; background: #fff; color: #000;">
+            <button class="btn" style="position: absolute; right: 1rem; top: 1rem; background: #eee; color: #333;" onclick="document.getElementById('qr-projection-modal').classList.remove('show')">✕ Close</button>
+            <h2 id="qr-title" style="margin-bottom: 0.5rem; color: #333; font-size: 2rem;">Scan for Feedback</h2>
+            <p id="qr-club" style="color: #666; margin-bottom: 2rem; font-size: 1.2rem;"></p>
+            
+            <div id="qr-container" style="background: #fff; padding: 1rem; border-radius: 15px; display: inline-block; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <img id="qr-image" src="" alt="Feedback QR Code" style="width: 400px; height: 400px;">
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <p style="font-size: 0.9rem; color: #888; margin-bottom: 0.5rem;">Direct Link</p>
+                <code id="qr-link" style="font-size: 1rem; background: #f8f9fa; padding: 0.8rem 1.5rem; border-radius: 8px; border: 1px solid #eee; display: block; word-break: break-all;"></code>
+            </div>
+            <p style="margin-top: 3rem; font-weight: bold; font-size: 1.1rem; color: #333;">National Engineering College</p>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <!-- Report Management Modal -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content card" style="max-width: 850px; max-height: 90vh; overflow-y: auto; padding: 0;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                <h2 style="margin: 0; font-size: 1.25rem;">📝 Event Report Management</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="student.downloadReport('pdf')" style="background: #e74c3c; padding: 0.5rem 1rem; font-size: 0.8rem;">PDF</button>
+                    <button class="btn btn-primary" onclick="student.downloadReport('docx')" style="background: #3498db; padding: 0.5rem 1rem; font-size: 0.8rem;">Word</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('report-modal').classList.remove('show')" style="padding: 0.5rem 1rem; font-size: 0.8rem;">✕</button>
+                </div>
+            </div>
+
+            <div style="padding: 1.5rem;">
+                <form id="report-form" onsubmit="student.saveReport(event)">
+                    <input type="hidden" id="report-event-id">
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">1. Brief Description of Event Conductance</label>
+                        <textarea id="report-description" style="width: 100%; min-height: 120px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.8rem; border-radius: 8px; resize: vertical;" placeholder="Detail the event activities, learning outcomes, and student engagement..."></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 600;">2. Event Rounds / Activities</label>
+                            <button type="button" class="btn btn-secondary" onclick="student.addReportRound()" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;">+ Add Round</button>
+                        </div>
+                        <div id="report-rounds-container"></div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 600;">3. Winners List</label>
+                            <button type="button" class="btn btn-secondary" onclick="student.addReportWinner()" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;">+ Add Winner</button>
+                        </div>
+                        <div id="report-winners-container"></div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.8rem; font-weight: 600;">4. Event Photos</label>
+                        <div id="report-photos-preview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;"></div>
+                        <label class="card" style="display: inline-flex; width: 100px; height: 100px; border: 2px dashed rgba(255,255,255,0.1); justify-content: center; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                            <input type="file" onchange="student.uploadReportPhoto(this)" style="display: none;" accept="image/*">
+                            <span style="font-size: 1.5rem; opacity: 0.5;">+</span>
+                        </label>
+                    </div>
+
+                    <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: var(--primary);">5. Official Signatures (Authority Names)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">Staff Coordinator</label>
+                                <input type="text" id="report-staff-coord" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.6rem; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">HOD</label>
+                                <input type="text" id="report-hod" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.6rem; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">Dean (SA&IR)</label>
+                                <input type="text" id="report-dean" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.6rem; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">Principal</label>
+                                <input type="text" id="report-principal" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.6rem; border-radius: 6px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2rem;">🚀 Save Report Details</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Club Modal -->
+    <div id="join-club-modal" class="modal">
+        <div class="modal-content card" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">Join Club</h2>
+                <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('join-club-modal').classList.remove('show')">✕</button>
+            </div>
+            
+            <form id="join-club-form">
+                <input type="hidden" id="join-club-id">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="join-student-name" readonly style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="join-student-email" readonly style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);">
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" id="join-student-dept" readonly style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6);">
+                </div>
+                <div class="form-group" id="join-fee-group" style="display: none; background: rgba(251, 191, 36, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #fbbf24; font-weight: 600;">Membership Fee</span>
+                        <span id="join-fee-amount" style="font-size: 1.2rem; font-weight: 700; color: #fff;"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Year <span style="color: var(--accent);">*</span></label>
+                    <select id="join-student-year" required>
+                        <option value="">Select Year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+                <div class="form-group" id="join-txn-group" style="display: none;">
+                    <label id="txn-label">Transaction ID <span style="color: var(--accent);">*</span></label>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Please pay the fee at the college office and enter the receipt ID here.</p>
+                    <input type="text" id="join-transaction-id" placeholder="e.g. TXN12345678">
+                </div>
+                <p id="join-club-msg" style="margin-bottom: 1rem; font-size: 0.85rem;"></p>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Submit Registration</button>
+                    <button type="button" class="btn" style="background: #334155;" onclick="document.getElementById('join-club-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/student.js"></script>
+</body>
+
+</html>

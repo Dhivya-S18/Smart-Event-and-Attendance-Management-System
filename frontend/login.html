@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Club Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+</head>
+<body class="auth-wrapper">
+    <div class="card auth-card">
+        <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary);">Login</h2>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;">Please select your specific role before signing in.</p>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="role">Login As</label>
+                <select id="role" required style="width: 100%; padding: 0.75rem 1rem; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white;">
+                    <option value="student">Student</option>
+                    <option value="staff">Staff (Coordinator)</option>
+                    <option value="hod">HOD</option>
+                    <option value="admin">System Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="name@college.edu">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+                <div style="text-align: right; margin-top: 0.5rem;">
+                    <a href="forgot-password.html" style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">Forgot Password?</a>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+            <p id="error-msg" style="color: var(--accent); margin-top: 1rem; text-align: center; display: none;"></p>
+        </form>
+        <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="index.html" style="color: var(--text-muted); font-size: 0.9rem;">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const selectedRole = document.getElementById('role').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            const result = await auth.login(email, password);
+            if (result.success) {
+                if (result.role !== selectedRole) {
+                    errorMsg.textContent = `Unauthorized: You do not have the ${selectedRole} role.`;
+                    errorMsg.style.display = 'block';
+                    localStorage.clear();
+                    return;
+                }
+                window.location.href = `dashboards/${result.role}.html`;
+            } else {
+                errorMsg.textContent = result.message || "Login failed";
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

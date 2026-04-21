@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events - Club Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="container">
+        <header style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div class="logo">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin: 0;">National Engineering College</h1>
+                    <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; margin: 0; margin-top: 0.2rem;">Event Management System</p>
+                </a>
+            </div>
+            <div class="nav-links" style="display: flex; gap: 1rem; align-items: center;">
+                <a href="/" class="btn btn-secondary" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">← Home</a>
+                <a href="/login" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">Login</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="events-section" style="padding-top: 3rem;">
+                <div style="display: flex; justify-content: center; text-align: center; margin-bottom: 2rem;">
+                    <div>
+                        <h2 style="font-size: 2.5rem; letter-spacing: -1px; margin-bottom: 0.5rem;">Upcoming Events</h2>
+                        <p style="color: var(--text-muted);">View all scheduled activities across campus</p>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="search-filter-bar" style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 3rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <div style="flex: 2; min-width: 250px; position: relative;">
+                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+                        <input type="text" id="event-search" placeholder="Search events by name..." 
+                               style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; transition: all 0.3s;"
+                               oninput="filterEvents()">
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <select id="dept-filter" onchange="filterEvents()" 
+                                style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none;">
+                            <option value="">All Departments</option>
+                            <option value="CSE">CSE</option>
+                            <option value="ECE">ECE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="MECH">Mechanical</option>
+                            <option value="IT">IT</option>
+                            <option value="CIVIL">Civil</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <input type="date" id="date-filter" onchange="filterEvents()" 
+                               style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none;">
+                    </div>
+                </div>
+
+                <div id="events-grid" class="stats-grid">
+                    <p style="text-align: center; color: var(--text-muted);">Loading events...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 id="modal-title" style="color: var(--primary); font-size: 1.8rem; letter-spacing: -0.5px;">Event Title</h2>
+                    <p id="modal-club" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 500;">Club Name</p>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="closeEventModal()">✕ Close</button>
+            </div>
+            
+            <div id="modal-poster-container" style="margin-bottom: 1.5rem; display: none;">
+                <img id="modal-poster" src="" alt="Event Poster" style="width: 100%; border-radius: 8px; max-height: 250px; object-fit: cover;">
+            </div>
+
+            <p id="modal-description" style="margin-bottom: 1.5rem; line-height: 1.6;"></p>
+            
+            <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; display: grid; gap: 0.75rem;">
+                <p>📍 <strong>Venue:</strong> <span id="modal-venue"></span></p>
+                <p>📅 <strong>Date:</strong> <span id="modal-date"></span></p>
+                <p>⏰ <strong>Time:</strong> <span id="modal-time"></span></p>
+            </div>
+
+            <div id="modal-rules-section" style="margin-bottom: 1.5rem; display: none;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Rules & Regulations</h4>
+                <p id="modal-rules" style="font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); white-space: pre-wrap;"></p>
+            </div>
+
+            <div id="modal-contact-section" style="margin-bottom: 1.5rem; display: none;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Contact Information</h4>
+                <p id="modal-contact" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+            </div>
+
+            <div id="modal-link-section" style="margin-bottom: 1.5rem; display: none; padding: 1rem; background: rgba(99,102,241,0.05); border: 1px dashed var(--primary); border-radius: 8px;">
+                <p style="font-size: 0.8rem; color: var(--primary); margin-bottom: 0.3rem; font-weight: 600;">Shareable Registration Link:</p>
+                <a id="modal-registration-link" href="#" target="_blank" style="font-size: 0.85rem; word-break: break-all; color: var(--text-main);"></a>
+            </div>
+
+            <div id="registration-section" style="margin-top: 2rem;">
+                <button id="register-btn" class="btn btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);">Register Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadEvents() {
+            const grid = document.getElementById('events-grid');
+            try {
+                const response = await fetch('http://localhost:5000/api/events/published');
+                const events = await response.json();
+                
+                window.allPublishedEvents = events; // Store for filtering
+                renderEvents(events);
+            } catch (err) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--accent);">Failed to load events. Please try again later.</p>';
+            }
+        }
+
+        function filterEvents() {
+            const searchTerm = document.getElementById('event-search').value.toLowerCase();
+            const deptFilter = document.getElementById('dept-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+
+            const filtered = window.allPublishedEvents.filter(event => {
+                const orgName = event.clubId?.clubName || event.associationId?.name || '';
+                const matchesName = event.title.toLowerCase().includes(searchTerm) || 
+                                   orgName.toLowerCase().includes(searchTerm);
+                
+                const orgDept = event.clubId?.department || event.associationId?.department || '';
+                const matchesDept = !deptFilter || (orgDept === deptFilter);
+                
+                let matchesDate = true;
+                if (dateFilter) {
+                    const eventDate = new Date(event.date).toISOString().split('T')[0];
+                    matchesDate = (eventDate === dateFilter);
+                }
+
+                return matchesName && matchesDept && matchesDate;
+            });
+
+            renderEvents(filtered);
+        }
+
+        function renderEvents(events) {
+            const grid = document.getElementById('events-grid');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (events.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-muted); grid-column: 1 / -1; padding: 3rem 0;">No matching events found.</p>';
+                return;
+            }
+
+            grid.innerHTML = events.map(event => {
+                const isPast = new Date(event.date) < today;
+                const feedbackAvailable = event.feedbackEnabled;
+                
+                let statusText = 'Open for Registration';
+                let statusColor = 'var(--success)';
+                let isFull = false;
+
+                if (event.isTeamEvent) {
+                    if (event.maxTeams > 0 && event.registeredTeamsCount >= event.maxTeams) {
+                        isFull = true;
+                    }
+                } else {
+                    if (event.maxParticipants > 0 && event.registeredCount >= event.maxParticipants) {
+                        isFull = true;
+                    }
+                }
+
+                if (feedbackAvailable) {
+                    statusText = 'Registration Closed';
+                    statusColor = 'var(--secondary)';
+                } else if (isPast) {
+                    statusText = 'Completed';
+                    statusColor = 'var(--text-muted)';
+                } else if (isFull) {
+                    statusText = 'Registration Full';
+                    statusColor = '#f87171'; // Red
+                }
+                
+                const countText = event.isTeamEvent ? 
+                    `${event.registeredTeamsCount || 0} / ${event.maxTeams || 0} Teams` : 
+                    `${event.registeredCount || 0} / ${event.maxParticipants || 0} Seats`;
+                
+                const max = event.isTeamEvent ? (event.maxTeams || 1) : (event.maxParticipants || 1);
+                const current = event.isTeamEvent ? (event.registeredTeamsCount || 0) : (event.registeredCount || 0);
+                const percent = Math.min((current / max) * 100, 100);
+
+                return `
+                <div class="card clickable" onclick="openEventModal('${event._id}')" style="min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card-shine"></div>
+                    <div class="event-badge">${event.clubId?.department || event.associationId?.department || 'General'}</div>
+                    <div>
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                            ${event.posterImage ? `<img src="http://localhost:5000${event.posterImage}" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">` : '<div style="width: 50px; height: 50px; background: rgba(99,102,241,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📅</div>'}
+                            <div style="flex: 1;">
+                                <h3 style="color: var(--text-main); font-size: 1.25rem; letter-spacing: -0.5px; margin-bottom: 0.2rem;">${event.title}</h3>
+                                <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600;">${event.clubId?.clubName || event.associationId?.name || 'Club / Association'}</p>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted); display: grid; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="opacity: 0.6;">📍</span> <span>${event.venue}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="opacity: 0.6;">📅</span> <span>${new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                                <span>${event.isTeamEvent ? 'Teams' : 'Initial Seats'}</span>
+                                <span style="color: ${isFull ? '#f87171' : 'var(--primary)'}; font-weight: bold;">${countText}</span>
+                            </div>
+                            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                <div style="width: ${percent}%; height: 100%; background: ${isFull ? '#f87171' : 'var(--primary)'}; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                         <span style="font-size: 0.8rem; color: ${statusColor}; font-weight: 600;">${statusText}</span>
+                         <span style="color: var(--text-muted);">→</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function openEventModal(id) {
+            const event = window.allPublishedEvents.find(e => e._id === id);
+            if (!event) return;
+
+            document.getElementById('modal-title').textContent = event.title;
+            document.getElementById('modal-club').textContent = event.clubId?.clubName || event.associationId?.name || 'Club / Association';
+            document.getElementById('modal-description').textContent = event.description;
+            document.getElementById('modal-venue').textContent = event.venue;
+            const eventDate = new Date(event.date);
+            document.getElementById('modal-date').textContent = eventDate.toLocaleDateString();
+            document.getElementById('modal-time').textContent = event.time || 'TBA';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const isPast = eventDate < today;
+
+            // Poster Handle
+            if (event.posterImage) {
+                document.getElementById('modal-poster').src = `http://localhost:5000${event.posterImage}`;
+                document.getElementById('modal-poster-container').style.display = 'block';
+            } else {
+                document.getElementById('modal-poster-container').style.display = 'none';
+            }
+
+            // Rules Handle
+            if (event.rules) {
+                document.getElementById('modal-rules').textContent = event.rules;
+                document.getElementById('modal-rules-section').style.display = 'block';
+            } else {
+                document.getElementById('modal-rules-section').style.display = 'none';
+            }
+
+            // Contact Handle
+            if (event.contactDetails) {
+                document.getElementById('modal-contact').textContent = event.contactDetails;
+                document.getElementById('modal-contact-section').style.display = 'block';
+            } else {
+                document.getElementById('modal-contact-section').style.display = 'none';
+            }
+
+            // Link Handle
+            if (event.registrationEnabled && !isPast && !event.feedbackEnabled) {
+                const regUrl = event.registrationLink.startsWith('http') 
+                    ? event.registrationLink 
+                    : `${window.location.origin}${event.registrationLink}`;
+                
+                document.getElementById('modal-registration-link').href = regUrl;
+                document.getElementById('modal-registration-link').textContent = regUrl;
+                document.getElementById('modal-link-section').style.display = 'block';
+            } else {
+                document.getElementById('modal-link-section').style.display = 'none';
+            }
+
+            const btn = document.getElementById('register-btn');
+            
+            let isFull = false;
+            if (event.isTeamEvent) {
+                if (event.maxTeams > 0 && event.registeredTeamsCount >= event.maxTeams) isFull = true;
+            } else {
+                if (event.maxParticipants > 0 && event.registeredCount >= event.maxParticipants) isFull = true;
+            }
+
+            if (isPast && !event.feedbackEnabled) {
+                btn.style.display = 'none';
+            } else if (event.feedbackEnabled) {
+                btn.textContent = 'Registration Closed';
+                btn.style.display = 'block';
+                btn.disabled = true;
+                btn.onclick = null;
+                btn.className = 'btn btn-secondary';
+                btn.style.background = 'var(--secondary)';
+                btn.style.cursor = 'not-allowed';
+                btn.style.boxShadow = 'none';
+            } else if (isFull) {
+                btn.textContent = event.isTeamEvent ? 'All team slots are filled' : 'Registration Full';
+                btn.style.display = 'block';
+                btn.disabled = true;
+                btn.onclick = null;
+                btn.style.background = '#64748b'; // Gray
+                btn.style.cursor = 'not-allowed';
+                btn.style.boxShadow = 'none';
+            } else {
+                btn.textContent = 'Register Now';
+                btn.style.display = 'block';
+                btn.disabled = false;
+                btn.onclick = () => window.location.href = `/register.html?id=${id}`;
+                btn.className = 'btn btn-primary';
+                btn.style.background = 'var(--primary)';
+                btn.style.cursor = 'pointer';
+            }
+            document.getElementById('event-modal').style.display = 'flex';
+        }
+
+        function closeEventModal() {
+            document.getElementById('event-modal').style.display = 'none';
+        }
+
+        loadEvents();
+    </script>
+</body>
+</html>

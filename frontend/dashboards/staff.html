@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Club Event Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="dashboard-container">
+    <aside class="sidebar">
+        <h2>Staff Hub</h2>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" onclick="showSection('pending')">Pending Approvals</a></li>
+                <li><a href="#" onclick="showSection('club-insight')">Club Insight</a></li>
+                <li id="nav-join-requests"><a href="#" onclick="showSection('join-requests')">Join Requests</a></li>
+                <li><a href="#" onclick="showSection('team')">Team Management</a></li>
+                <li><a href="#" onclick="showSection('profile')">Profile</a></li>
+                <li><a href="#" onclick="auth.logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <h1 id="welcome-msg">Welcome, Coordinator</h1>
+                <div id="club-info" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Club: Loading...</div>
+            </div>
+            <!-- Multi-org switcher (hidden if only 1 org) -->
+            <div id="org-switcher-container"></div>
+            <div class="notification-wrapper" id="notif-trigger">
+                <span style="font-size: 1.4rem;">🔔</span>
+                <span id="notif-badge" class="notification-badge" style="display: none;">0</span>
+                <div id="notif-panel" class="notification-panel">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                        <button class="btn" style="background: transparent; font-size: 0.75rem; color: var(--text-muted); cursor: pointer;" onclick="staff.markAllRead(event)">Mark all as read</button>
+                    </div>
+                    <div id="notif-list" class="notification-list">
+                        <div class="notification-empty">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Pending Section -->
+        <section id="pending-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">Event Approval Requests</h2>
+            </div>
+            
+            <!-- Search & Filters -->
+            <div class="search-filter-bar" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 2; min-width: 200px; position: relative;">
+                    <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.4; font-size: 0.8rem;">🔍</span>
+                    <input type="text" id="staff-search" placeholder="Search by title or student name..." 
+                           style="width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;"
+                           oninput="staff.filterRequests()">
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                    <input type="date" id="staff-date-filter" onchange="staff.filterRequests()" 
+                           style="width: 100%; padding: 0.5rem 0.8rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;">
+                </div>
+            </div>
+
+            <div class="table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Student</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Join Requests Section -->
+        <section id="join-requests-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">Membership Applications</h2>
+                <div id="join-form-toggle-container" style="display: flex; gap: 0.5rem; align-items: center;"></div>
+            </div>
+            <div class="table-container card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Register No</th>
+                            <th>Email</th>
+                            <th>Transaction ID</th>
+                            <th>Date Applied</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="join-requests-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Club Insight Section -->
+        <section id="club-insight-section" style="display: none;">
+            <h2 id="insight-title" style="margin-bottom: 1.5rem;">My Club Performance</h2>
+            <div id="staff-club-detail" class="card" style="padding: 2rem;">
+                <!-- Filled via JS -->
+            </div>
+        </section>
+
+
+        <!-- Team Section -->
+        <section id="team-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h2 style="margin: 0;" id="team-assoc-name">Team Management</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="team-dept-name">Loading organization details...</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="staff.openAddStudentModal()">+ Add Student</button>
+                    <button class="btn btn-primary" style="background: var(--secondary);" onclick="staff.openAddStaffModal()">+ Add Staff</button>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--primary);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Lead HOD</label>
+                    <h3 id="team-hod-name" style="margin-top: 0.5rem;">Loading...</h3>
+                    <p id="team-hod-email" style="font-size: 0.8rem; opacity: 0.7;"></p>
+                </div>
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--secondary);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Staff Coordinators</label>
+                    <h3 id="team-staff-count" style="margin-top: 0.5rem;">0</h3>
+                </div>
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--success);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Student Coordinators</label>
+                    <h3 id="team-student-count" style="margin-top: 0.5rem;">0</h3>
+                </div>
+                <div class="card" style="padding: 1.5rem; border-left: 4px solid var(--highlight);">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Total Members</label>
+                    <h3 id="team-member-count" style="margin-top: 0.5rem;">0</h3>
+                </div>
+            </div>
+
+            <h3>Student Coordinators</h3>
+            <div id="team-student-list" class="table-container card" style="margin-top: 1rem; margin-bottom: 2rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Reg No</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team-student-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Staff Coordinators</h3>
+            <div id="team-staff-list" class="table-container card" style="margin-top: 1rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team-staff-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; margin-top: 3rem;">
+                <h3 style="margin: 0;">All Members</h3>
+                <div style="position: relative; width: 300px;">
+                    <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.4; font-size: 0.8rem;">🔍</span>
+                    <input type="text" id="member-search" placeholder="Search members by name or reg no..." 
+                           style="width: 100%; padding: 0.5rem 0.8rem 0.5rem 2rem; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: white; outline: none; font-size: 0.85rem;"
+                           oninput="staff.filterMembers()">
+                </div>
+            </div>
+            <div id="members-list" class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;"></div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" style="display: none;">
+            <div class="card profile-card">
+                <div class="profile-header">
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-display" src="../assets/default-avatar.png" alt="Profile Picture">
+                        <label for="profile-pic-input" class="pic-edit-btn" title="Update Photo">
+                            <i>📷</i>
+                            <input type="file" id="profile-pic-input" hidden accept="image/*">
+                        </label>
+                        <button class="pic-delete-btn" onclick="staff.deleteProfilePic()" title="Remove Photo">
+                            <i>✕</i>
+                        </button>
+                    </div>
+                    <div class="profile-info-basic">
+                        <h2 id="display-name">User Name</h2>
+                        <p id="display-role">Staff Coordinator</p>
+                        <button class="btn btn-primary" id="edit-profile-btn" onclick="staff.toggleProfileEdit(true)">Edit Profile</button>
+                    </div>
+                </div>
+
+                <div id="profile-view-mode">
+                    <div class="profile-details-grid">
+                        <div class="detail-item">
+                            <label>Email</label>
+                            <p id="view-email">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phone</label>
+                            <p id="view-phone">-</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <p id="view-dept">-</p>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <label>Bio</label>
+                            <p id="view-bio" style="font-style: italic; color: var(--text-muted); line-height: 1.5;">No bio added yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profile-edit-mode" style="display: none;">
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="profile-dept-input" placeholder="e.g. Mechanical Engineering">
+                        </div>
+                        <div class="form-group">
+                            <label>Bio</label>
+                            <textarea id="profile-bio-input" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn" style="background: var(--bg-dark);" onclick="staff.toggleProfileEdit(false)">Cancel</button>
+                        </div>
+                        <p id="profile-msg" class="feedback-msg"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Staff Approval Modal -->
+    <div id="approval-modal" class="modal">
+        <div class="modal-content card">
+            <h2>Staff Approval Form</h2>
+            <p id="approval-event-title" style="margin-bottom: 1.5rem; font-weight: 600;"></p>
+            <form id="approval-form">
+                <input type="hidden" id="approval-event-id">
+                <div class="form-group">
+                    <label>Action</label>
+                    <select id="approval-action" required>
+                        <option value="approve">Approve Request</option>
+                        <option value="reject">Reject Request</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Manager Notes / Feedback</label>
+                    <textarea id="approval-feedback" rows="4" placeholder="Suggestions or reason for rejection..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" id="confirm-btn">Confirm</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('approval-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal (New) -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content card" style="max-width: 800px; width: 95%;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 id="modal-event-title">Event Details</h2>
+                    <p id="modal-event-status" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;"></p>
+                </div>
+                <button class="btn btn-secondary" onclick="document.getElementById('event-detail-modal').classList.remove('show')">✕</button>
+            </div>
+
+            <div class="tabs" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button class="tab-btn active" id="tab-overview" onclick="staff.switchModalTab('overview')">Overview</button>
+                <button class="tab-btn" id="tab-participation" onclick="staff.switchModalTab('participation')">Participation</button>
+            </div>
+
+            <!-- Overview Tab Content -->
+            <div id="modal-overview-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <p style="margin-bottom: 0.5rem;"><strong>Description:</strong> <span id="modal-event-desc"></span></p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Venue:</strong> <span id="modal-event-venue"></span></p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Date:</strong> <span id="modal-event-date"></span></p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Time:</strong> <span id="modal-event-time"></span></p>
+                        <div id="modal-feedback-display" style="display: none;"></div>
+                    </div>
+                    </div>
+                    <div>
+                        <h3>Official Assets</h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+                            <button id="btn-modal-poster" class="btn btn-primary" onclick="staff.viewPoster(this.dataset.url)">View Poster</button>
+                            <button id="btn-modal-circular" class="btn btn-primary" onclick="window.open(this.dataset.url, '_blank')">View Circular</button>
+                            <button id="btn-modal-reg-link" class="btn btn-secondary" onclick="window.open(this.dataset.url, '_blank')">Registration Link</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participation Tab Content -->
+            <div id="modal-participation-content" style="display: none;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Register No</th>
+                                <th>Department</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participation-table-body">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Coordinator Modal -->
+    <div id="add-student-modal" class="modal">
+        <div class="modal-content card" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Add Student Coordinator</h2>
+            <form id="add-student-form">
+                <div class="form-group">
+                    <label>Student Email</label>
+                    <input type="email" id="new-student-email" placeholder="student@nec.edu.in" required>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem;">Invite a student to help organize events.</p>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="staff.addStudentCoordinator(event)">Add to Team</button>
+                    <button type="button" class="btn" style="background: #334155;" onclick="document.getElementById('add-student-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Staff Coordinator Modal -->
+    <div id="add-staff-modal" class="modal">
+        <div class="modal-content card" style="max-width: 400px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--secondary);">Add Staff colleague</h2>
+            <form id="add-staff-form">
+                <div class="form-group">
+                    <label>Staff Email</label>
+                    <input type="email" id="new-staff-email" placeholder="colleague@nec.edu.in" required>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem;">Invite another staff member to manage this organization.</p>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="background: var(--secondary);" onclick="staff.addStaffCoordinator(event)">Add Staff</button>
+                    <button type="button" class="btn" style="background: #334155;" onclick="document.getElementById('add-staff-modal').classList.remove('show')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Join Form Setup Modal -->
+    <div id="join-form-modal" class="modal">
+        <div class="modal-content card" style="max-width: 600px;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Setup Join Request Form</h2>
+            <form id="join-setup-form">
+                <div class="form-group">
+                    <label>Membership Type</label>
+                    <select id="join-membership-type" required onchange="const group = document.getElementById('join-member-limit-group'); if(this.value === 'open') { group.style.display = 'block'; } else { group.style.display = 'none'; document.getElementById('join-member-limit').value = 0; }">
+                        <option value="controlled">Controlled (Staff must approve requests)</option>
+                        <option value="open">Open (Students join instantly)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="join-member-limit-group" style="display: none;">
+                    <label>Member Capacity Limit (0 for unlimited)</label>
+                    <input type="number" id="join-member-limit" min="0" value="0">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; padding: 1rem; background: rgba(251,191,36,0.05); border-radius: 8px; border: 1px solid rgba(251,191,36,0.1);">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #fbbf24;">Paid Membership?</label>
+                        <select id="join-is-paid" onchange="document.getElementById('join-fee-group').style.display = this.value === 'true' ? 'block' : 'none'">
+                            <option value="false">No (Free)</option>
+                            <option value="true">Yes (Paid)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="join-fee-group" style="margin: 0; display: none;">
+                        <label style="color: #fbbf24;">Membership Fee (₹)</label>
+                        <input type="number" id="join-fee" min="0" value="0" placeholder="e.g. 50">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="staff.saveJoinForm(event)">Save & Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="staff.closeJoinFormModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/staff.js"></script>
+</body>
+</html>
