@@ -47,14 +47,14 @@ const report = {
     fetchEventAndReport: async () => {
         try {
             // Fetch Event Details
-            const eventRes = await fetch(`http://localhost:5000/api/events/status`, {
+            const eventRes = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/status`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const allEvents = await eventRes.json();
             report.event = allEvents.find(e => e._id === report.eventId);
 
             if (!report.event) {
-                const specRes = await fetch(`http://localhost:5000/api/events/status?status=completed`, {
+                const specRes = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/status?status=completed`, {
                     headers: { "Authorization": `Bearer ${auth.getToken()}` }
                 });
                 const compEvents = await specRes.json();
@@ -64,7 +64,7 @@ const report = {
             if (!report.event) throw new Error("Event not found or not accessible");
 
             // Fetch Report Data
-            const repRes = await fetch(`http://localhost:5000/api/reports/${report.eventId}`, {
+            const repRes = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/reports/${report.eventId}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const repData = await repRes.json();
@@ -76,7 +76,7 @@ const report = {
             }
 
             // Fetch Participants (from Feedback Responses)
-            const attRes = await fetch(`http://localhost:5000/api/feedback/${report.eventId}`, {
+            const attRes = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/feedback/${report.eventId}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             report.participants = await attRes.json();
@@ -187,7 +187,7 @@ const report = {
     getPhotoHtml: (index, p) => {
         const url = typeof p === 'string' ? p : (p?.url || "");
         const isLocal = typeof url === 'string' && url.startsWith("/uploads");
-        const fullUrl = isLocal ? `http://localhost:5000${url}` : url;
+        const fullUrl = isLocal ? `https://smart-event-and-attendance-management.onrender.com${url}` : url;
         
         return `
             <div class="dynamic-item" style="display: flex; gap: 1rem; align-items: center;">
@@ -232,7 +232,7 @@ const report = {
         uploadBtn.disabled = true;
 
         try {
-            const res = await fetch("http://localhost:5000/api/reports/upload-photo", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/reports/upload-photo", {
                 method: "POST",
                 headers: { 
                     "Authorization": `Bearer ${auth.getToken()}`
@@ -286,7 +286,7 @@ const report = {
 
 
         try {
-            const res = await fetch("http://localhost:5000/api/reports", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/reports", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -310,7 +310,7 @@ const report = {
     },
 
     download: async (type) => {
-        const url = `http://localhost:5000/api/reports/${report.eventId}/${type}`;
+        const url = `https://smart-event-and-attendance-management.onrender.com/api/reports/${report.eventId}/${type}`;
         const btnId = `download-${type}-btn`;
         const btn = document.getElementById(btnId);
         const originalText = btn.innerHTML;

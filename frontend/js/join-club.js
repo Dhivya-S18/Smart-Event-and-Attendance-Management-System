@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://smart-event-and-attendance-management.onrender.com/api";
 
 const explorer = {
     allClubs: [],

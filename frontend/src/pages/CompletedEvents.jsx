@@ -109,7 +109,7 @@ const CompletedEvents = () => {
                                     <div className="flex gap-2">
                                         {event.circularPdf && (
                                             <a 
-                                                href={`http://localhost:5000${event.circularPdf}`} 
+                                                href={`https://smart-event-and-attendance-management.onrender.com${event.circularPdf}`} 
                                                 target="_blank" 
                                                 rel="noreferrer"
                                                 className="flex-1 flex items-center justify-center py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition-colors"
@@ -119,7 +119,7 @@ const CompletedEvents = () => {
                                         )}
                                         {event.posterImage && (
                                             <a 
-                                                href={`http://localhost:5000${event.posterImage}`} 
+                                                href={`https://smart-event-and-attendance-management.onrender.com${event.posterImage}`} 
                                                 target="_blank" 
                                                 rel="noreferrer"
                                                 className="flex-1 flex items-center justify-center py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition-colors"

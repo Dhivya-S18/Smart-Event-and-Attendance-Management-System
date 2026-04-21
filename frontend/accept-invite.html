@@ -55,7 +55,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/auth/accept-invite', {
+                const res = await fetch('https://smart-event-and-attendance-management.onrender.com/api/auth/accept-invite', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token, password, phone })

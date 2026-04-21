@@ -109,8 +109,8 @@ const HOD = () => {
                                             <p><strong>Club:</strong> {event.clubId?.clubName || 'Unknown Club'}</p>
 
                                             <div className="document-links" style={{marginTop: '10px', marginBottom: '15px'}}>
-                                                {event.circularPdf && <a href={`http://localhost:5000${event.circularPdf}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Circular</a>}
-                                                {event.posterImage && <a href={`http://localhost:5000${event.posterImage}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Poster</a>}
+                                                {event.circularPdf && <a href={`https://smart-event-and-attendance-management.onrender.com${event.circularPdf}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Circular</a>}
+                                                {event.posterImage && <a href={`https://smart-event-and-attendance-management.onrender.com${event.posterImage}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Poster</a>}
                                             </div>
 
                                             <div className="card-actions" style={{ display: 'flex', gap: '10px' }}>

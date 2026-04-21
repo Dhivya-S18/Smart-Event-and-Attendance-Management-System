@@ -30,7 +30,7 @@ const hod = {
 
     loadEvents: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/events/status?status=pending_hod_approval", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/events/status?status=pending_hod_approval", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             hod.allPending = await res.json();
@@ -90,7 +90,7 @@ const hod = {
 
     loadClubs: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/clubs", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/clubs", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             hod.allClubs = await res.json();
@@ -128,7 +128,7 @@ const hod = {
 
     openClubModal: async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/clubs/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/clubs/${id}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const data = await res.json();
@@ -186,7 +186,7 @@ const hod = {
     downloadClubReport: () => {
         const id = window.currentClubData.club._id;
         const monthYear = document.getElementById("report-month").value;
-        let url = `http://localhost:5000/api/clubs/${id}/report?token=${auth.getToken()}`;
+        let url = `https://smart-event-and-attendance-management.onrender.com/api/clubs/${id}/report?token=${auth.getToken()}`;
         if (monthYear) {
             const [year, month] = monthYear.split("-");
             url += `&year=${year}&month=${month}`;
@@ -200,10 +200,10 @@ const hod = {
             window.open(url, '_blank');
         } else if (url.startsWith('/')) {
             // Frontend pages (e.g. /register.html, /feedback-form.html) should open via the frontend origin
-            const origin = url.includes('.html') ? window.location.origin : 'http://localhost:5000';
+            const origin = url.includes('.html') ? window.location.origin : 'https://smart-event-and-attendance-management.onrender.com';
             window.open(`${origin}${url}`, '_blank');
         } else {
-            window.open(`http://localhost:5000/${url}`, '_blank');
+            window.open(`https://smart-event-and-attendance-management.onrender.com/${url}`, '_blank');
         }
     },
 
@@ -214,7 +214,7 @@ const hod = {
     approveEvent: async (id) => {
         if (!confirm("Approve this event? This will automatically publish it to the dashboard.")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/events/${id}/hod-approve`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/${id}/hod-approve`, {
                 method: "PUT",
                 headers: { 
                     "Authorization": `Bearer ${auth.getToken()}`,
@@ -243,7 +243,7 @@ const hod = {
         const reason = document.getElementById("reject-reason").value;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/events/${id}/hod-approve`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/${id}/hod-approve`, {
                 method: "PUT",
                 headers: { 
                     "Authorization": `Bearer ${auth.getToken()}`,
@@ -263,7 +263,7 @@ const hod = {
 
     loadProfile: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/users/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/users/profile", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const user = await res.json();
@@ -289,7 +289,7 @@ const hod = {
             document.getElementById("view-dept").textContent = user.department || "Not provided";
             document.getElementById("view-bio").textContent = user.bio || "No bio added yet.";
             
-            const pic = user.profilePic ? `http://localhost:5000${user.profilePic}` : "../assets/default-avatar.png";
+            const pic = user.profilePic ? `https://smart-event-and-attendance-management.onrender.com${user.profilePic}` : "../assets/default-avatar.png";
             document.getElementById("profile-pic-display").src = pic;
 
             // Edit Mode
@@ -317,7 +317,7 @@ const hod = {
         formData.append("image", file);
 
         try {
-            const res = await fetch("http://localhost:5000/api/upload/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/upload/profile", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` },
                 body: formData
@@ -328,7 +328,7 @@ const hod = {
                 const currentUser = auth.getUser();
                 const updatedUser = { ...currentUser, profilePic: data.imageUrl };
                 localStorage.setItem("user", JSON.stringify(updatedUser));
-                document.getElementById("profile-pic-display").src = `http://localhost:5000${data.imageUrl}`;
+                document.getElementById("profile-pic-display").src = `https://smart-event-and-attendance-management.onrender.com${data.imageUrl}`;
                 alert("Profile picture updated!");
             } else {
                 alert(data.message || "Upload failed");
@@ -341,7 +341,7 @@ const hod = {
     deleteProfilePic: async () => {
         if (!confirm("Are you sure you want to remove your profile picture?")) return;
         try {
-            const res = await fetch("http://localhost:5000/api/upload/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/upload/profile", {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -371,7 +371,7 @@ const hod = {
         };
 
         try {
-            const res = await fetch("http://localhost:5000/api/users/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/users/profile", {
                 method: "PUT",
                 headers: { 
                     "Content-Type": "application/json",
@@ -401,7 +401,7 @@ const hod = {
 
     loadNotifications: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/notifications", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/notifications", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const notifications = await res.json();
@@ -462,7 +462,7 @@ const hod = {
 
     markAsRead: async (id) => {
         try {
-            await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+            await fetch(`https://smart-event-and-attendance-management.onrender.com/api/notifications/${id}/read`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -475,14 +475,14 @@ const hod = {
     markAllRead: async (e) => {
         if (e) e.stopPropagation();
         try {
-            const res = await fetch("http://localhost:5000/api/notifications", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/notifications", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const notifications = await res.json();
             const unread = notifications.filter(n => !n.read);
             
             for (const n of unread) {
-                await fetch(`http://localhost:5000/api/notifications/${n._id}/read`, {
+                await fetch(`https://smart-event-and-attendance-management.onrender.com/api/notifications/${n._id}/read`, {
                     method: "PUT",
                     headers: { "Authorization": `Bearer ${auth.getToken()}` }
                 });
@@ -495,7 +495,7 @@ const hod = {
 
     loadAssociationTeam: async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/associations/my-team`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/associations/my-team`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             if (!res.ok) return;
@@ -553,7 +553,7 @@ const hod = {
         if (!assocId) return alert("Association context missing");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/associations/${assocId}/students`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/associations/${assocId}/students`, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -580,7 +580,7 @@ const hod = {
         const assocId = window.myAssociation._id;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/associations/${assocId}/students`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/associations/${assocId}/students`, {
                 method: "DELETE",
                 headers: { 
                     "Content-Type": "application/json",

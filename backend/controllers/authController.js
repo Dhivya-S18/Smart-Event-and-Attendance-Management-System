@@ -275,14 +275,30 @@ const requestClubJoin = async (req, res) => {
                 isSetup: false
             });
             await user.save();
-        } else {
-            console.log("Flow: Existing user found:", email);
-            if (club.members && club.members.some(m => m.toString() === user._id.toString())) {
-                return res.status(400).json({ message: "Wait! You are already a confirmed member of this club." });
+        }
+
+        // Enrollment Constraint Checklist
+        if (club.allowedDepartments && club.allowedDepartments.length > 0) {
+            const userDept = user.department;
+            const isAllowedDept = club.allowedDepartments.some(d => d.toLowerCase() === userDept.toLowerCase());
+            if (!isAllowedDept) {
+                return res.status(403).json({ message: `Access Denied: This club is restricted to specific departments. You belong to ${userDept}.` });
             }
-            if (club.studentCoordinators && club.studentCoordinators.some(c => c.toString() === user._id.toString())) {
-                return res.status(400).json({ message: "Wait! You are already a coordinator for this club." });
+        }
+
+        if (club.allowedYears && club.allowedYears.length > 0) {
+            const userYear = parseInt(user.year);
+            if (!club.allowedYears.includes(userYear)) {
+                const allowedStr = club.allowedYears.join(", ");
+                return res.status(403).json({ message: `Access Denied: This club is restricted to students in years: ${allowedStr}. You are in year ${userYear}.` });
             }
+        }
+
+        if (club.members && club.members.some(m => m.toString() === user._id.toString())) {
+            return res.status(400).json({ message: "Wait! You are already a confirmed member of this club." });
+        }
+        if (club.studentCoordinators && club.studentCoordinators.some(c => c.toString() === user._id.toString())) {
+            return res.status(400).json({ message: "Wait! You are already a coordinator for this club." });
         }
 
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";

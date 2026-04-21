@@ -80,7 +80,7 @@ const PublicEvents = () => {
                             {selectedEvent.posterImage && (
                                 <div className="detail-poster" style={{width: '100%', maxHeight: '400px', overflow: 'hidden', borderRadius: '8px'}}>
                                     <img 
-                                        src={`http://localhost:5000${selectedEvent.posterImage}`} 
+                                        src={`https://smart-event-and-attendance-management.onrender.com${selectedEvent.posterImage}`} 
                                         alt="Event Poster" 
                                         style={{width: '100%', height: '100%', objectFit: 'contain', background: '#f5f5f5'}} 
                                     />
@@ -135,7 +135,7 @@ const PublicEvents = () => {
                                     
                                     {selectedEvent.circularPdf && (
                                         <a 
-                                            href={`http://localhost:5000${selectedEvent.circularPdf}`} 
+                                            href={`https://smart-event-and-attendance-management.onrender.com${selectedEvent.circularPdf}`} 
                                             target="_blank" 
                                             rel="noreferrer" 
                                             className="btn-secondary"

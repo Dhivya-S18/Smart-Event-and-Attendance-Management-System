@@ -366,7 +366,7 @@ const EventReport = () => {
               {report.photos.map((photo, idx) => {
                 const photoStr = typeof photo === 'string' ? photo : (photo?.url || "");
                 const isLocal = typeof photoStr === 'string' && photoStr.startsWith("/uploads");
-                const fullUrl = isLocal ? `http://localhost:5000${photoStr}` : photoStr;
+                const fullUrl = isLocal ? `https://smart-event-and-attendance-management.onrender.com${photoStr}` : photoStr;
                 
                 return (
                   <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 shadow-sm">

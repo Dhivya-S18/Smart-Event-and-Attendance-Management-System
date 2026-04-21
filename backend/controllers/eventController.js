@@ -181,20 +181,8 @@ const staffApprove = async (req, res) => {
       const association = event.associationId;
 
       if (club) {
-        if (club.clubType === "independent") {
-          // Independent Clubs: Staff Approval -> Publish
-          event.status = "published";
-          event.published = true;
-          event.publishedAt = Date.now();
-        } else if (club.clubType === "shared" && (!club.hods || club.hods.length === 0)) {
-          // Shared Clubs without HOD: Staff Approval -> Publish
-          event.status = "published";
-          event.published = true;
-          event.publishedAt = Date.now();
-        } else {
-          // Department or Shared with HOD: Staff Approval -> Circular -> HOD
-          event.status = "circular_creation_pending";
-        }
+        // All club types (Independent, Shared, Department) now go to asset preparation first
+        event.status = "circular_creation_pending";
       } else if (association) {
         // Associations always go to Circular -> HOD
         event.status = "circular_creation_pending";
@@ -273,13 +261,15 @@ const submitToHod = async (req, res) => {
     const association = event.associationId;
 
     if (club) {
-      if (!club.hods || club.hods.length === 0) {
-        // If no HODs (Independent Club), we shouldn't even be here normally, but lets handle it
+      if (club.clubType === "independent" || !club.hods || club.hods.length === 0) {
+        // Independent Clubs or Shared/Dept without HOD: Publish immediately after assets are ready
         event.status = "published";
         event.published = true;
         event.publishedAt = Date.now();
+        event.hodApproved = true; // Auto-marked as approved for workflow consistency
+        event.hodFeedback = "Independent Club - Auto-published after asset preparation.";
       } else {
-        // Initialize multiple approvals from club HODs
+        // Shared or Department Clubs with HOD: Initialize approvals
         event.hodApprovals = club.hods.map(hodId => ({
           hodId,
           status: "pending"

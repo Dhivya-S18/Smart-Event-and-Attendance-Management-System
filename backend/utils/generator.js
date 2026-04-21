@@ -147,7 +147,8 @@ const generateCircularFile = (event) => {
       doc.moveDown(2);
       doc.text("Students are requested to register through the Register Link provided in the portal.");
 
-      const regUrl = `http://localhost:5173/register.html?id=${event._id}`;
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+      const regUrl = `${frontendUrl}/register.html?id=${event._id}`;
       doc.fillColor("blue").text(regUrl, { underline: true }).fillColor("black");
 
       doc.moveDown(5);

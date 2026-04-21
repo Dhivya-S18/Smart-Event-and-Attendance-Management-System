@@ -112,7 +112,7 @@
         async function loadEvents() {
             const grid = document.getElementById('events-grid');
             try {
-                const response = await fetch('http://localhost:5000/api/events/published');
+                const response = await fetch('https://smart-event-and-attendance-management.onrender.com/api/events/published');
                 const events = await response.json();
                 
                 window.allPublishedEvents = events; // Store for filtering
@@ -200,7 +200,7 @@
                     <div class="event-badge">${event.clubId?.department || event.associationId?.department || 'General'}</div>
                     <div>
                         <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                            ${event.posterImage ? `<img src="http://localhost:5000${event.posterImage}" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">` : '<div style="width: 50px; height: 50px; background: rgba(99,102,241,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📅</div>'}
+                            ${event.posterImage ? `<img src="https://smart-event-and-attendance-management.onrender.com${event.posterImage}" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">` : '<div style="width: 50px; height: 50px; background: rgba(99,102,241,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📅</div>'}
                             <div style="flex: 1;">
                                 <h3 style="color: var(--text-main); font-size: 1.25rem; letter-spacing: -0.5px; margin-bottom: 0.2rem;">${event.title}</h3>
                                 <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600;">${event.clubId?.clubName || event.associationId?.name || 'Club / Association'}</p>
@@ -251,7 +251,7 @@
 
             // Poster Handle
             if (event.posterImage) {
-                document.getElementById('modal-poster').src = `http://localhost:5000${event.posterImage}`;
+                document.getElementById('modal-poster').src = `https://smart-event-and-attendance-management.onrender.com${event.posterImage}`;
                 document.getElementById('modal-poster-container').style.display = 'block';
             } else {
                 document.getElementById('modal-poster-container').style.display = 'none';

@@ -23,7 +23,7 @@ const EventReportForm = ({ eventId, onClose, onSave }) => {
     const fetchReport = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5000/api/reports/${eventId}`, {
+            const res = await axios.get(`https://smart-event-and-attendance-management.onrender.com/api/reports/${eventId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -81,7 +81,7 @@ const EventReportForm = ({ eventId, onClose, onSave }) => {
         formData.append('photo', file);
 
         try {
-            const res = await axios.post('http://localhost:5000/api/reports/upload-photo', formData, {
+            const res = await axios.post('https://smart-event-and-attendance-management.onrender.com/api/reports/upload-photo', formData, {
                 headers: { 
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`
@@ -108,7 +108,7 @@ const EventReportForm = ({ eventId, onClose, onSave }) => {
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/reports', { ...reportData, eventId }, {
+            await axios.post('https://smart-event-and-attendance-management.onrender.com/api/reports', { ...reportData, eventId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert("Report saved successfully!");
@@ -123,7 +123,7 @@ const EventReportForm = ({ eventId, onClose, onSave }) => {
     const downloadFormat = async (format) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/reports/${eventId}/${format}`, {
+            const response = await axios.get(`https://smart-event-and-attendance-management.onrender.com/api/reports/${eventId}/${format}`, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob'
             });
@@ -285,7 +285,7 @@ const EventReportForm = ({ eventId, onClose, onSave }) => {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
                         {reportData.photos.map((photo, index) => (
                             <div key={index} style={{ position: 'relative', width: '100px', height: '100px' }}>
-                                <img src={`http://localhost:5000${photo.url}`} alt="Event" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                <img src={`https://smart-event-and-attendance-management.onrender.com${photo.url}`} alt="Event" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
                                 <button type="button" onClick={() => removeArrayItem(index, 'photos')} style={{ position: 'absolute', top: '-5px', right: '-5px', padding: '2px 5px', fontSize: '10px', background: 'red', color: 'white', border: 'none', borderRadius: '50%' }}>✕</button>
                             </div>
                         ))}

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://smart-event-and-attendance-management.onrender.com/api";
 
 const auth = {
   login: async (email, password) => {

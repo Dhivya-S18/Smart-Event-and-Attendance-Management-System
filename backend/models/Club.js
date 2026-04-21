@@ -94,6 +94,17 @@ const clubSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    allowedYears: [
+      {
+        type: Number,
+        enum: [1, 2, 3, 4],
+      },
+    ],
+    allowedDepartments: [
+      {
+        type: String, // Department names
+      },
+    ],
   },
   { timestamps: true }
 );

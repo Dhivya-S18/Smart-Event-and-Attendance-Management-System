@@ -44,7 +44,7 @@ const admin = {
 
     loadAnalytics: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/admin/analytics", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/analytics", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
 
@@ -86,7 +86,7 @@ const admin = {
     loadPublishableEvents: async () => {
         const body = document.getElementById("admin-table-body");
         try {
-            const res = await fetch("http://localhost:5000/api/events/status?status=pending_hod_approval", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/events/status?status=pending_hod_approval", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const events = await res.json();
@@ -115,7 +115,7 @@ const admin = {
     publishEvent: async (id) => {
         if (!confirm("Publish this event to the homepage?")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/events/${id}/publish`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/events/${id}/publish`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -130,12 +130,12 @@ const admin = {
     },
 
     generateCircular: (id) => {
-        window.open(`http://localhost:5000/api/generate/circular/${id}?token=${auth.getToken()}`, '_blank');
+        window.open(`https://smart-event-and-attendance-management.onrender.com/api/generate/circular/${id}?token=${auth.getToken()}`, '_blank');
     },
 
     loadUsers: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/admin/users", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/users", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const users = await res.json();
@@ -239,7 +239,7 @@ const admin = {
 
     loadDepartments: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/admin/departments", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/departments", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             window.allDepartments = await res.json();
@@ -336,7 +336,7 @@ const admin = {
 
     _executeDeleteUser: async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/users/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -357,7 +357,7 @@ const admin = {
     loadClubs: async () => {
         const grid = document.getElementById("admin-clubs-grid");
         try {
-            const res = await fetch("http://localhost:5000/api/clubs", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/clubs", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const clubs = await res.json();
@@ -556,7 +556,7 @@ const admin = {
         if (staffEmails.length === 0) return alert("Please select at least one Staff Coordinator.");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/clubs", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/clubs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
                 body: JSON.stringify({
@@ -674,7 +674,7 @@ const admin = {
         if (staffEmails.length === 0) return alert("Please select at least one Staff Coordinator.");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/clubs", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/clubs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
                 body: JSON.stringify({
@@ -722,7 +722,7 @@ const admin = {
         if (staffEmails.length === 0) return alert("Please select at least one Staff Coordinator.");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/clubs", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/clubs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
                 body: JSON.stringify({
@@ -761,7 +761,7 @@ const admin = {
 
     viewClubDetails: async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/clubs/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/clubs/${id}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const data = await res.json();
@@ -861,7 +861,7 @@ const admin = {
 
     openClubModal: async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/clubs/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/clubs/${id}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const data = await res.json();
@@ -1000,7 +1000,7 @@ const admin = {
         if (!confirm("Are you sure you want to remove this member?")) return;
         const clubId = window.currentClubData.club._id;
         try {
-            const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/members/${userId}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/clubs/${clubId}/members/${userId}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1120,7 +1120,7 @@ const admin = {
             }
 
             const method = id === "NEW_CLUB" ? "POST" : "PUT";
-            const url = id === "NEW_CLUB" ? "http://localhost:5000/api/admin/clubs" : `http://localhost:5000/api/admin/clubs/${id}`;
+            const url = id === "NEW_CLUB" ? "https://smart-event-and-attendance-management.onrender.com/api/admin/clubs" : `https://smart-event-and-attendance-management.onrender.com/api/admin/clubs/${id}`;
 
             const res = await fetch(url, {
                 method,
@@ -1163,7 +1163,7 @@ const admin = {
         if (!name || !departmentId) return alert("Fill all fields");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/associations", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/associations", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
                 body: JSON.stringify({ name, departmentId })
@@ -1187,7 +1187,7 @@ const admin = {
         if (!confirm("Delete this club securely?")) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/clubs/${clubId}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/clubs/${clubId}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1208,7 +1208,7 @@ const admin = {
     downloadClubReport: () => {
         const id = window.currentClubData.club._id;
         const monthYear = document.getElementById("report-month").value; // YYYY-MM
-        let url = `http://localhost:5000/api/clubs/${id}/report?token=${auth.getToken()}`;
+        let url = `https://smart-event-and-attendance-management.onrender.com/api/clubs/${id}/report?token=${auth.getToken()}`;
         
         if (monthYear) {
             const [year, month] = monthYear.split("-");
@@ -1223,7 +1223,7 @@ const admin = {
     loadAssociations: async () => {
         const grid = document.getElementById("admin-associations-grid");
         try {
-            const res = await fetch("http://localhost:5000/api/admin/associations", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/associations", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const associations = await res.json();
@@ -1265,7 +1265,7 @@ const admin = {
         if (staffEmails.length === 0) return alert("Please add at least one Staff Coordinator.");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/associations", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/associations", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
                 body: JSON.stringify({ name, departmentId, hodId, staffEmails })
@@ -1287,7 +1287,7 @@ const admin = {
     deleteAssociation: async (id) => {
         if (!confirm("Are you sure you want to delete this association?")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/associations/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/associations/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1310,7 +1310,7 @@ const admin = {
         if (!confirm(`Are you sure you want to delete ${name}?`)) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/associations/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/associations/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1373,7 +1373,7 @@ const admin = {
     viewAssociationDetails: async (id) => {
         try {
             window.currentAssocId = id; // Store for deletion
-            const res = await fetch(`http://localhost:5000/api/admin/associations/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/associations/${id}`, {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const data = await res.json();
@@ -1445,17 +1445,17 @@ const admin = {
 
     viewEventPoster: (url) => {
         if (!url || url === 'undefined') return alert("No poster available");
-        window.open(`http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`, '_blank');
+        window.open(`https://smart-event-and-attendance-management.onrender.com${url.startsWith('/') ? '' : '/'}${url}`, '_blank');
     },
 
     viewEventDocument: (url) => {
         if (!url || url === 'undefined') return alert("No circular available");
-        window.open(`http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`, '_blank');
+        window.open(`https://smart-event-and-attendance-management.onrender.com${url.startsWith('/') ? '' : '/'}${url}`, '_blank');
     },
 
     loadAllEvents: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/admin/events", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/admin/events", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const events = await res.json();
@@ -1561,7 +1561,7 @@ const admin = {
     deleteEventFromTable: async (id) => {
         if (!confirm("Permanently delete this event?")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/events/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1582,7 +1582,7 @@ const admin = {
         const id = document.getElementById("edit-event-id").value;
         if (!confirm("Permanently delete this event?")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/events/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1602,7 +1602,7 @@ const admin = {
 
     loadProfile: async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/users/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/users/profile", {
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
             const user = await res.json();
@@ -1628,7 +1628,7 @@ const admin = {
             document.getElementById("view-dept").textContent = user.department || "Not provided";
             document.getElementById("view-bio").textContent = user.bio || "No bio added yet.";
             
-            const pic = user.profilePic ? `http://localhost:5000${user.profilePic}` : "../assets/default-avatar.png";
+            const pic = user.profilePic ? `https://smart-event-and-attendance-management.onrender.com${user.profilePic}` : "../assets/default-avatar.png";
             document.getElementById("profile-pic-display").src = pic;
 
             // Edit Mode
@@ -1656,7 +1656,7 @@ const admin = {
         formData.append("image", file);
 
         try {
-            const res = await fetch("http://localhost:5000/api/upload/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/upload/profile", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` },
                 body: formData
@@ -1667,7 +1667,7 @@ const admin = {
                 const currentUser = auth.getUser();
                 const updatedUser = { ...currentUser, profilePic: data.imageUrl };
                 localStorage.setItem("user", JSON.stringify(updatedUser));
-                document.getElementById("profile-pic-display").src = `http://localhost:5000${data.imageUrl}`;
+                document.getElementById("profile-pic-display").src = `https://smart-event-and-attendance-management.onrender.com${data.imageUrl}`;
                 alert("Profile picture updated!");
             } else {
                 alert(data.message || "Upload failed");
@@ -1680,7 +1680,7 @@ const admin = {
     deleteProfilePic: async () => {
         if (!confirm("Are you sure you want to remove your profile picture?")) return;
         try {
-            const res = await fetch("http://localhost:5000/api/upload/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/upload/profile", {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${auth.getToken()}` }
             });
@@ -1710,7 +1710,7 @@ const admin = {
         };
 
         try {
-            const res = await fetch("http://localhost:5000/api/users/profile", {
+            const res = await fetch("https://smart-event-and-attendance-management.onrender.com/api/users/profile", {
                 method: "PUT",
                 headers: { 
                     "Content-Type": "application/json",
@@ -1764,7 +1764,7 @@ document.getElementById("edit-event-form")?.addEventListener("submit", async(e) 
     };
 
     try {
-        const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, {
+        const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/admin/events/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.getToken()}` },
             body: JSON.stringify(payload)
@@ -1804,8 +1804,8 @@ document.getElementById("edit-user-form").addEventListener("submit", async (e) =
     try {
         const method = isCreate ? "POST" : "PUT";
         const url = isCreate 
-            ? "http://localhost:5000/api/admin/users" 
-            : `http://localhost:5000/api/admin/users/${id}`;
+            ? "https://smart-event-and-attendance-management.onrender.com/api/admin/users" 
+            : `https://smart-event-and-attendance-management.onrender.com/api/admin/users/${id}`;
 
         const res = await fetch(url, {
             method,

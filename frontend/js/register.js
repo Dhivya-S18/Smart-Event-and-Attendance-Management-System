@@ -34,7 +34,7 @@ const register = {
     loadEventDetails: async () => {
         try {
             // We can use a public event route or a generic one
-            const res = await fetch(`http://localhost:5000/api/events/published`);
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/published`);
             const events = await res.json();
             const event = events.find(e => e._id === register.eventId);
             
@@ -155,7 +155,7 @@ const register = {
                 teamMembers: teamMembers
             };
 
-            const res = await fetch(`http://localhost:5000/api/events/${register.eventId}/register`, {
+            const res = await fetch(`https://smart-event-and-attendance-management.onrender.com/api/events/${register.eventId}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

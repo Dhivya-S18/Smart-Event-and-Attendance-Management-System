@@ -231,8 +231,8 @@ const Students = () => {
                                         <p>{event.description}</p>
                                         
                                         <div className="document-links">
-                                            {event.circularPdf && <a href={`http://localhost:5000${event.circularPdf}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Circular</a>}
-                                            {event.posterImage && <a href={`http://localhost:5000${event.posterImage}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Poster</a>}
+                                            {event.circularPdf && <a href={`https://smart-event-and-attendance-management.onrender.com${event.circularPdf}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Circular</a>}
+                                            {event.posterImage && <a href={`https://smart-event-and-attendance-management.onrender.com${event.posterImage}`} target="_blank" rel="noreferrer" className="btn-secondary-link">View Poster</a>}
                                         </div>
 
                                         {event.registrationEnabled && (
